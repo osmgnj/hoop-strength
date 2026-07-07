@@ -270,6 +270,25 @@ nav.bar button.on{color:var(--accent)}
 .bn-close{width:100%;padding:11px;border:none;border-radius:13px;background:transparent;color:var(--sub);font-size:13px;font-weight:600;margin-top:6px;cursor:pointer}
 /* EXERCISE YT LINK */
 .ex-yt{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#fff;background:#e11d48;padding:6px 11px;border-radius:8px;text-decoration:none;margin-top:9px}
+/* MECE CARD */
+.mece-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px;text-align:left}
+.mece-title{font-size:13px;font-weight:800;margin-bottom:10px}
+.mece-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.mece-row:last-of-type{border-bottom:none}
+.mece-row.cleared{opacity:.55}
+.mr-icon{font-size:18px;flex:none}
+.mr-body{flex:1;min-width:0}
+.mr-body b{font-size:12.5px;display:block}
+.mr-body small{font-size:10.5px;color:var(--sub);display:block;margin-top:1px}
+.mr-tag{flex:none;font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--accent);background:rgba(255,122,26,.1);padding:3px 8px;border-radius:999px;white-space:nowrap}
+.mece-row.cleared .mr-tag{color:var(--green);background:rgba(52,211,153,.1)}
+.mece-note{font-size:11.5px;color:var(--txt);background:rgba(255,122,26,.07);border:1px solid rgba(255,122,26,.25);border-radius:10px;padding:9px 11px;margin-top:10px;line-height:1.5}
+/* CHIPS */
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;justify-content:center}
+.chip{font-size:10.5px;font-weight:700;color:var(--txt);background:var(--panel2);border:1px solid var(--line);padding:5px 10px;border-radius:999px}
+.chip-inj{color:var(--yellow);border-color:rgba(251,191,36,.35)}
+.reveal-stage.done::before{background:var(--green)}
+.reveal-stage.done .rs-label{color:var(--green)}
 /* INSTALL */
 .install-btn{width:100%;padding:14px;border:none;border-radius:13px;background:var(--accent);color:#0b1220;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px}
 .install-guide .ig-row{font-size:12px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);line-height:1.6}
@@ -1129,12 +1148,32 @@ function renderOB(){
   });
 }
 
+// fitness レベル → 開始ステージ。筋力の証明は筋力ステージだけをスキップする（プライオ・スキルは別要素）
+function startStageFor(p){
+  if(p.goal==='strength') return {weak:0,avg:0,strong:1,elite:2}[p.current_ability]||0;
+  return {rookie:0,beginner:0,intermediate:1,advanced:2,elite:2}[p.fitness]||0;
+}
+
+function startReasonFor(p, startIdx){
+  if(p.goal==='jump'){
+    if(startIdx===0) return '基礎の筋力から確実に積み上げます';
+    if(startIdx===1) return '自重レベルはクリア済み。加重からスタート';
+    return p.fitness==='elite'
+      ? '筋力はトップライン。伸びしろはプライオ変換とスキルに全振りします'
+      : 'スクワット自重×1.0以上 → 筋力は十分。力を高さに変える段階からスタート';
+  }
+  if(startIdx===0) return '基礎から確実に積み上げます';
+  if(startIdx===1) return '基礎レベルはクリア済み。Stage 2からスタート';
+  return '土台は十分。専門的トレーニングからスタート';
+}
+
 function showReveal(){
   const goal=GOALS[obAnswers.goal];
   const p=obAnswers;
   const freqMap={1:'週1日',2:'週2〜3日',3:'週4〜5日',4:'週6〜7日'};
   const eqMap={body:'自重のみ',light:'自宅器具',gym:'一般ジム',perf:'アスリートジム'};
   const abilityLabel = goal.abilityLabel[p.current_ability]||'';
+  const startIdx = startStageFor(p);
 
   const ctRow = `<div class="current-target">
     <div class="ct-label">あなたの現在地 → 目標</div>
@@ -1145,53 +1184,63 @@ function showReveal(){
     </div>
   </div>`;
 
+  // ジャンプ力のMECE分解カード（筋力偏重を防ぎ、全体像を先に見せる）
+  const strengthDone = startIdx>=2;
+  const meceCard = p.goal==='jump' ? `<div class="mece-card">
+    <div class="mece-title">🧩 ジャンプ力 ＝ 3つの要素</div>
+    <div class="mece-row${strengthDone?' cleared':''}">
+      <span class="mr-icon">💪</span>
+      <span class="mr-body"><b>絶対筋力</b><small>地面を押す力の総量</small></span>
+      <span class="mr-tag">${strengthDone?'✓ クリア済み':'STAGE 1-2'}</span>
+    </div>
+    <div class="mece-row">
+      <span class="mr-icon">⚡</span>
+      <span class="mr-body"><b>スピード・プライオ・神経系</b><small>力を一瞬で高さに変える変換効率</small></span>
+      <span class="mr-tag">STAGE 3</span>
+    </div>
+    <div class="mece-row">
+      <span class="mr-icon">🎯</span>
+      <span class="mr-body"><b>スキル</b><small>踏み切り技術・空中動作・タイミング</small></span>
+      <span class="mr-tag">課題別ルート</span>
+    </div>
+    <div class="mece-note">📍 ${startReasonFor(p,startIdx)}</div>
+  </div>` : `<div class="mece-card"><div class="mece-note">📍 ${startReasonFor(p,startIdx)}</div></div>`;
+
   const CHAL_LABEL = {
     lost:'何から始めればいいかわからない', plateau:'伸び悩んでいる', balance:'バスケとの両立', injury:'ケガが心配',
-    finishing:'フィニッシュが決められない', rebound_lose:'リバウンドで跳び負ける', block_low:'ブロックが決まらない', takeoff_weak:'踏み切りの爆発力が弱い',
-    drive_beat:'ドライブで抜けない', fastbreak:'速攻で走り負ける', shaken:'マークマンに振り切られる',
-    of_cut:'OFで左右に抜けない', df_follow:'DFでついていけない', change_dir:'方向転換が遅い',
-    no_exp:'フィジカルトレーニングが初めて', no_change:'体が変わらない', fatigue:'疲労バランスが難しい', pain:'関節・ケガが心配',
-    legs_heavy:'後半に足が重くなる', recovery:'インターバル回復が遅い', defense:'ハードDFが続かない',
+    finishing:'フィニッシュ', rebound_lose:'リバウンド', block_low:'ブロック', takeoff_weak:'踏み切り爆発力',
+    drive_beat:'ドライブ', fastbreak:'速攻', shaken:'DF追走',
+    of_cut:'OF切り返し', df_follow:'DF対応', change_dir:'方向転換',
+    no_exp:'はじめて', no_change:'停滞打破', fatigue:'疲労管理', pain:'関節ケア',
+    legs_heavy:'後半の足', recovery:'回復速度', defense:'DF持久力',
   };
   const chalArr = Array.isArray(p.challenge)?p.challenge:(p.challenge?[p.challenge]:[]);
-  const chalLabels = chalArr.map(c=>CHAL_LABEL[c]).filter(Boolean).join('・');
-  const chalMsgs = chalArr.map(c=>CHALLENGE_MSG[c]).filter(Boolean).join('<br>');
-  const challengeNote = chalArr.length ? `<div class="challenge-note"><b>あなたの課題：${chalLabels}</b><br>${chalMsgs}</div>` : '';
-
-  const contactNote = p.goal==='strength' && CONTACT_MSG[p.fitness] ?
-    `<div class="challenge-note" style="border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06)"><b style="color:var(--purple)">アプローチ：${
-      {rebound:'リバウンド強化',loose:'ルーズボール強化',defense:'ディフェンス安定',post:'ポスト強化',drive:'ドライブ突破'}[p.fitness]||''
-    }</b><br>${CONTACT_MSG[p.fitness]}</div>` : '';
-
   const injArrR=Array.isArray(p.injury)?p.injury:[p.injury||'none'];
-  const hasInjR=injArrR.some(x=>x&&x!=='none');
-  const injuryNote = hasInjR ? `<div class="challenge-note" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)">
-    <b style="color:var(--yellow)">⚠️ 怪我配慮モード ON</b><br>痛みのある部位に負担がかかる種目は自動で代替種目に切り替えます</div>` : '';
+  const injParts=injArrR.filter(x=>x&&x!=='none').map(x=>({knee:'膝',back:'腰',ankle:'足首',shoulder:'肩'}[x]||x));
+  const chipsHTML = (chalArr.length||injParts.length) ? `<div class="chip-row">
+    ${chalArr.map(c=>CHAL_LABEL[c]?`<span class="chip">🎯 ${CHAL_LABEL[c]}</span>`:'').join('')}
+    ${injParts.map(x=>`<span class="chip chip-inj">⚠️ ${x}配慮</span>`).join('')}
+  </div>` : '';
 
-  const stagesHTML = goal.stages.map((s,i)=>i===0
-    ? `<div class="reveal-stage current"><div class="rs-label">STAGE 1 — 今すぐ取り組む</div><div class="rs-title">${s.title}</div><div class="rs-focus">${s.focus}</div></div>`
-    : `<div class="reveal-stage locked"><div class="rs-label">STAGE ${s.num}</div><div class="rs-title">${s.title}</div><div class="rs-lock">🔒 Stage ${s.num-1}クリアで解放</div></div>`
+  const stagesHTML = goal.stages.map((s,i)=> i<startIdx
+    ? `<div class="reveal-stage done"><div class="rs-label">STAGE ${s.num} — ✓ 習得済み扱い</div><div class="rs-title">${s.title}</div></div>`
+    : i===startIdx
+    ? `<div class="reveal-stage current"><div class="rs-label">STAGE ${s.num} — ここからスタート</div><div class="rs-title">${s.title}</div><div class="rs-focus">${s.focus}</div></div>`
+    : `<div class="reveal-stage locked"><div class="rs-label">STAGE ${s.num}</div><div class="rs-title">${s.title}</div></div>`
   ).join('');
-
-  const teaseHTML=`
-    ${p.goal==='jump'?`<div class="tease-item"><span class="ti-icon">🎥</span><div><div class="ti-name">ジャンプフォームガイド</div><div class="ti-lock">踏み切り・着地・腕の使い方の完全解説</div></div><span class="lock-badge">🔒 Stage 1</span></div>`:''}
-    <div class="tease-item"><span class="ti-icon">🥗</span><div><div class="ti-name">栄養ガイド</div><div class="ti-lock">筋トレ効果を最大化する食事戦略</div></div><span class="lock-badge">🔒 Stage 2</span></div>
-    <div class="tease-item"><span class="ti-icon">😴</span><div><div class="ti-name">リカバリー&睡眠プロトコル</div><div class="ti-lock">超回復を最大化する方法</div></div><span class="lock-badge">🔒 Stage 3</span></div>
-    <div class="tease-item"><span class="ti-icon">🧠</span><div><div class="ti-name">メンタル・集中力トレーニング</div><div class="ti-lock">本番で力を出しきる</div></div><span class="lock-badge">🔒 Stage 4</span></div>`;
 
   $('#obBody').innerHTML=`<div class="ob-reveal">
     <div class="reveal-badge">${goal.icon} ${goal.name}ルート</div>
     <div class="reveal-h">${goal.tagline}</div>
     <div class="reveal-meta">${freqMap[p.bball_freq]} / ${eqMap[p.equipment]} / ${p.time}分</div>
-    ${ctRow}${contactNote}${challengeNote}${injuryNote}
-    <div class="reveal-path"><div class="rp-title">あなたの4ステージ</div>${stagesHTML}</div>
-    <div class="tease-sep">🔒 この先に見える山</div>${teaseHTML}
+    ${meceCard}${ctRow}${chipsHTML}
+    <div class="reveal-path"><div class="rp-title">あなたのルート</div>${stagesHTML}</div>
   </div>`;
 
   $('#obFoot').innerHTML=`<button class="ob-next on" id="obStart">今日からはじめる →</button>
     <button class="ob-back" id="obRevBack">← 戻って修正する</button>`;
   $('#obStart').onclick=()=>{
-    DB={profile:obAnswers,currentStage:0,stagesDone:[],completedNodes:[],checkedToday:{},gameDay:false,lastGameDay:''};
+    DB={profile:obAnswers,currentStage:startIdx,stagesDone:Array.from({length:startIdx},(_,i)=>i),completedNodes:[],checkedToday:{},gameDay:false,lastGameDay:''};
     saveDB(); startApp();
   };
   $('#obRevBack').onclick=()=>{ obStep=OB_TOTAL-1; renderOB(); };
