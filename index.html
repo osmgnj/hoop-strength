@@ -1,0 +1,1762 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HOOP STR">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%230b1220'/%3E%3Ccircle cx='90' cy='90' r='55' fill='%23ff7a1a'/%3E%3Cpath d='M35 90h110M90 35v110M55 50a75 75 0 0 1 0 80M125 50a75 75 0 0 0 0 80' stroke='%230b1220' stroke-width='5' fill='none'/%3E%3C/svg%3E">
+<title>HOOP STRENGTH</title>
+<style>
+:root{
+  --bg:#0b1220;--panel:#131c2e;--panel2:#1a2540;--line:#27344f;
+  --txt:#eaf0fb;--sub:#7a8fb5;--accent:#ff7a1a;--green:#34d399;
+  --blue:#3b82f6;--purple:#a78bfa;--red:#f87171;--yellow:#fbbf24;
+  --r:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN",sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;overscroll-behavior:none}
+
+/* ONBOARDING */
+#obWrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column}
+#obWrap.gone{display:none}
+.ob-top{padding:20px 20px 0;flex:none}
+.ob-progress{display:flex;gap:5px;margin-bottom:24px}
+.ob-progress span{flex:1;height:3px;background:var(--line);border-radius:3px;transition:.3s}
+.ob-progress span.done{background:var(--accent)}
+.ob-progress span.done.seg-data{background:var(--blue)}
+.ob-progress span.done.seg-detail{background:var(--purple)}
+.ob-progress .seg-div{flex:none;width:2px;background:var(--bg);margin:0 2px}
+.ob-step-label{font-size:11px;color:var(--sub);letter-spacing:1.5px;font-weight:700}
+.ob-body{flex:1;overflow-y:auto;padding:12px 20px 0}
+.ob-q{font-size:22px;font-weight:800;line-height:1.3;margin-bottom:5px}
+.ob-sub{font-size:13px;color:var(--sub);margin-bottom:24px}
+.ob-cards{display:flex;flex-direction:column;gap:10px}
+.ob-card{background:var(--panel);border:2px solid var(--line);border-radius:var(--r);padding:15px 16px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:center;gap:14px}
+.ob-card:active{transform:scale(.98)}
+.ob-card.sel{border-color:var(--accent);background:rgba(255,122,26,.08)}
+.ob-icon{font-size:24px;flex:none;width:36px;text-align:center}
+.ob-label{font-size:15px;font-weight:700}
+.ob-desc{font-size:12px;color:var(--sub);margin-top:2px}
+.ob-foot{padding:14px 20px calc(14px + env(safe-area-inset-bottom));flex:none}
+.ob-next{width:100%;padding:15px;background:var(--accent);color:#0b1220;border:0;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;opacity:.35;pointer-events:none;transition:.2s}
+.ob-next.on{opacity:1;pointer-events:auto}
+.ob-back{display:block;text-align:center;margin-top:10px;color:var(--sub);font-size:13px;cursor:pointer;background:none;border:0;width:100%;padding:6px}
+.ob-note{font-size:12px;color:var(--sub);margin-top:12px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+
+/* REVEAL */
+.ob-reveal{padding:20px}
+.reveal-badge{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:18px}
+.reveal-h{font-size:22px;font-weight:800;line-height:1.3;margin-bottom:4px}
+.reveal-meta{font-size:12px;color:var(--sub);margin-bottom:20px}
+.current-target{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:20px}
+.ct-label{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:1.5px;margin-bottom:10px}
+.ct-row{display:flex;align-items:center;gap:10px}
+.ct-box{flex:1;text-align:center;background:var(--panel2);border-radius:10px;padding:10px}
+.ct-box .ct-val{font-size:14px;font-weight:800}
+.ct-box .ct-t{font-size:10px;color:var(--sub);margin-top:2px}
+.ct-arrow{font-size:18px;color:var(--sub);flex:none}
+.challenge-note{background:rgba(255,122,26,.08);border:1px solid rgba(255,122,26,.2);border-radius:12px;padding:12px 14px;margin-bottom:20px;font-size:13px}
+.challenge-note b{color:var(--accent)}
+.reveal-path{margin-bottom:20px}
+.rp-title{font-size:11px;color:var(--sub);letter-spacing:1.5px;font-weight:700;margin-bottom:10px}
+.reveal-stage{border-left:2px solid var(--line);padding-left:16px;margin-left:8px;position:relative;margin-bottom:8px}
+.reveal-stage::before{content:"";position:absolute;left:-7px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--line)}
+.reveal-stage.current::before{background:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.25)}
+.reveal-stage.locked{opacity:.4}
+.rs-label{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:1px;margin-bottom:2px}
+.rs-title{font-size:14px;font-weight:700}
+.rs-focus{font-size:12px;color:var(--accent);margin-top:2px}
+.rs-lock{font-size:11px;color:var(--sub);margin-top:2px}
+.tease-sep{font-size:11px;color:var(--sub);letter-spacing:2px;font-weight:700;margin:16px 0 10px}
+.tease-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:7px;opacity:.5}
+.ti-icon{font-size:18px}
+.ti-name{font-size:13px;font-weight:700}
+.ti-lock{font-size:11px;color:var(--sub)}
+.lock-badge{margin-left:auto;background:var(--panel2);border:1px solid var(--line);padding:3px 8px;border-radius:6px;font-size:10px;color:var(--sub);white-space:nowrap;flex:none}
+
+/* INJURY WARNING */
+.injury-banner{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.injury-banner .ib-icon{font-size:18px;flex:none;margin-top:1px}
+.injury-banner b{color:var(--yellow)}
+
+/* APP */
+#appWrap{display:none;flex-direction:column;height:100%}
+#appWrap.on{display:flex}
+header{padding:14px 16px 10px;flex:none}
+.hrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ball{width:26px;height:26px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#ffb06a,var(--accent));position:relative;box-shadow:0 3px 8px rgba(255,122,26,.3)}
+.ball::before,.ball::after{content:"";position:absolute;background:rgba(0,0,0,.22)}
+.ball::before{left:49%;top:0;width:1.5px;height:100%}
+.ball::after{top:49%;left:0;height:1.5px;width:100%}
+.brand{font-size:15px;font-weight:800}
+.brand small{display:block;font-size:9px;color:var(--sub);letter-spacing:2px;font-weight:600}
+.stats{display:flex;gap:7px}
+.sitem{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px;text-align:center}
+.sitem b{display:block;font-size:18px;line-height:1}
+.sitem span{font-size:9px;color:var(--sub);letter-spacing:.5px}
+main{flex:1;overflow-y:auto;padding:0 14px 14px}
+.view{display:none}
+.view.on{display:block;animation:fadeup .2s}
+@keyframes fadeup{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+.sec{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:2px;text-transform:uppercase;margin:18px 0 9px}
+
+/* GAME DAY TOGGLE */
+.gd-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:12px;cursor:pointer}
+.gd-title{font-size:14px;font-weight:700}
+.gd-sub{font-size:11px;color:var(--sub);margin-top:2px}
+.switch{width:44px;height:24px;background:var(--line);border-radius:999px;position:relative;transition:.2s;flex:none}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}
+.switch.on{background:var(--accent)}
+.switch.on::after{transform:translateX(20px)}
+
+/* SESSION */
+.session-header{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:10px}
+.sh-stage{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:2px;margin-bottom:3px}
+.sh-title{font-size:17px;font-weight:800}
+.sh-focus{font-size:12px;color:var(--sub);margin-top:4px}
+.sh-msg{font-size:12px;color:var(--green);margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.sh-progress{margin-top:12px}
+.bar-wrap{height:5px;background:var(--line);border-radius:5px;margin-top:5px}
+.bar-fill{height:5px;background:var(--accent);border-radius:5px;transition:width .4s}
+.bar-label{font-size:11px;color:var(--sub);display:flex;justify-content:space-between}
+
+.ex-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin-bottom:9px;overflow:hidden}
+.ex-card.key-ex{border-color:rgba(255,122,26,.4)}
+.ex-card.alt-ex{border-color:rgba(251,191,36,.3)}
+.ex-top{display:flex;align-items:center;gap:11px;padding:13px}
+.ex-icon{width:44px;height:44px;border-radius:11px;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:14px;font-weight:700}
+.ex-dose{font-size:12px;color:var(--accent);font-weight:700;margin-top:2px}
+.ex-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;display:inline-block;margin-top:4px}
+.badge-key{background:rgba(255,122,26,.12);color:var(--accent)}
+.badge-alt{background:rgba(251,191,36,.12);color:var(--yellow)}
+.ex-check{width:30px;height:30px;flex:none;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;transition:.15s}
+.ex-check.done{background:var(--green);border-color:var(--green);color:#0b1220}
+.ex-expand{width:26px;height:26px;flex:none;background:none;border:0;color:var(--sub);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.ex-expand.open{transform:rotate(180deg)}
+.ex-detail{border-top:1px solid var(--line);max-height:0;overflow:hidden;transition:.25s}
+.ex-detail.open{max-height:400px}
+.ex-detail-inner{padding:13px}
+.ex-form-title{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:7px}
+.ex-form-steps{list-style:none}
+.ex-form-steps li{padding:5px 0 5px 18px;position:relative;font-size:12px;border-bottom:1px solid var(--line)}
+.ex-form-steps li:last-child{border:0}
+.ex-form-steps li::before{content:"▸";position:absolute;left:0;color:var(--accent)}
+
+.milestone-card{border-top:1px solid var(--line);padding:13px;background:rgba(255,122,26,.04)}
+.mc-label{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;margin-bottom:5px}
+.mc-text{font-size:13px;font-weight:700;margin-bottom:10px}
+.mc-btn{width:100%;padding:11px;background:transparent;border:1.5px solid var(--accent);color:var(--accent);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}
+.mc-btn.achieved{background:var(--accent);color:#0b1220}
+
+.recovery-header{background:linear-gradient(135deg,rgba(52,211,153,.08),rgba(59,130,246,.08));border:1px solid rgba(52,211,153,.2);border-radius:var(--r);padding:18px;margin-bottom:12px;text-align:center}
+.rh-icon{font-size:32px;margin-bottom:7px}
+.rh-title{font-size:17px;font-weight:800}
+.rh-sub{font-size:12px;color:var(--sub);margin-top:4px}
+
+/* PATH */
+.mountain-header{text-align:center;padding:18px 14px 6px}
+.mh-goal{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:2px;margin-bottom:5px}
+.mh-title{font-size:20px;font-weight:800;margin-bottom:3px}
+.mh-sub{font-size:12px;color:var(--sub)}
+.path-wrap{position:relative;padding-left:30px;padding-top:8px}
+.path-line{position:absolute;left:11px;top:0;bottom:0;width:2px;background:var(--line)}
+.path-node{position:relative;margin-bottom:9px}
+.path-dot{position:absolute;left:-25px;top:15px;width:14px;height:14px;border-radius:50%;background:var(--line);border:2px solid var(--bg);z-index:1}
+.path-node.done .path-dot{background:var(--green)}
+.path-node.current .path-dot{background:var(--accent);box-shadow:0 0 0 4px rgba(255,122,26,.2)}
+.path-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px}
+.path-node.current .path-card{border-color:rgba(255,122,26,.4)}
+.path-node.locked .path-card{opacity:.5}
+.pc-num{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--sub);margin-bottom:3px}
+.pc-title{font-size:15px;font-weight:800;margin-bottom:4px}
+.pc-focus{font-size:12px;color:var(--accent);margin-bottom:6px}
+.pc-milestone{font-size:12px;color:var(--sub);padding:8px 10px;background:var(--panel2);border-radius:8px}
+.pc-lock{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:5px}
+.pc-done-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(52,211,153,.12);color:var(--green);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-top:5px}
+.peak-node{background:linear-gradient(135deg,var(--panel2),var(--panel));border:1px solid var(--purple);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:18px;margin-left:0}
+.pk-icon{font-size:28px;margin-bottom:6px}
+.pk-title{font-size:14px;font-weight:800;color:var(--purple)}
+.pk-sub{font-size:11px;color:var(--sub);margin-top:3px}
+.future-section{margin-top:6px;padding-top:14px;border-top:1px dashed var(--line)}
+.future-title{font-size:10px;color:var(--sub);letter-spacing:2px;font-weight:700;margin-bottom:9px}
+.future-card{display:flex;align-items:center;gap:11px;padding:13px;background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:7px;opacity:.45}
+.fc-icon{font-size:22px}
+.fc-name{font-size:13px;font-weight:700}
+.fc-lock{font-size:11px;color:var(--sub);margin-top:2px}
+.fc-badge{margin-left:auto;background:var(--panel2);border:1px solid var(--line);padding:4px 8px;border-radius:6px;font-size:10px;color:var(--sub);white-space:nowrap;flex:none}
+
+/* SPHERE MAP */
+.sphere-map-wrap{text-align:center;margin-bottom:6px}
+.sm-label{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.sm-sub{font-size:11px;color:var(--sub);margin-top:6px;margin-bottom:2px}
+.stage-progress-wrap{margin-bottom:14px}
+.stage-spheres{display:flex;align-items:flex-start;padding:0}
+.ss-node{display:flex;flex-direction:column;align-items:center;flex:1}
+.ss-line{flex:1;height:2px;background:var(--line);margin-top:23px}
+.ss-line.done{background:var(--green)}
+.ss-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;border:2px solid var(--line);background:var(--panel2);color:var(--sub)}
+.ss-circle.done{background:var(--green);border-color:var(--green);color:#0b1220}
+.ss-circle.current{background:var(--accent);border-color:var(--accent);color:#0b1220;box-shadow:0 0 0 5px rgba(255,122,26,.2)}
+.ss-circle.locked{opacity:.5}
+.ss-title{font-size:9px;color:var(--sub);margin-top:6px;text-align:center;padding:0 4px;line-height:1.3}
+
+/* PROFILE */
+.profile-section{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);margin-bottom:13px;overflow:hidden}
+.ps-header{padding:12px 15px;border-bottom:1px solid var(--line);font-size:10px;font-weight:700;color:var(--sub);letter-spacing:2px}
+.ps-row{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid var(--line);font-size:13px}
+.ps-row:last-child{border:0}
+.ps-key{color:var(--sub);font-size:12px}
+.ps-val{font-weight:700}
+.danger-btn{width:100%;padding:13px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:13px;font-size:13px;font-weight:700;cursor:pointer}
+
+nav.bar{flex:none;display:flex;background:rgba(11,18,32,.92);backdrop-filter:blur(16px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav.bar button{flex:1;background:none;border:0;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0;font-size:9px;font-weight:700;letter-spacing:.5px;cursor:pointer}
+nav.bar button .ic{font-size:20px}
+nav.bar button.on{color:var(--accent)}
+.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:var(--green);color:#0b1220;padding:10px 20px;border-radius:999px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:.3s;z-index:200}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-8px)}
+/* MULTI-SELECT CHECK */
+.ob-check{width:20px;height:20px;border-radius:5px;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-left:auto;transition:all .15s}
+.ob-check.on{background:var(--accent);border-color:var(--accent)}
+.ob-check.on::after{content:'✓';font-size:12px;color:#0b1220;font-weight:900}
+/* JUMP SKILL TREE */
+.skill-tree{padding:2px 0 10px}
+.jt-tag{font-size:9px;color:var(--sub);letter-spacing:1.5px;font-weight:600;text-align:center;text-transform:uppercase;margin-bottom:7px}
+.jt-trunk{display:flex;flex-direction:column;align-items:stretch}
+.jt-tnode{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.jt-tnode.done{border-color:var(--accent)}
+.jt-tnode.current{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.1)}
+.jt-tnode.locked{opacity:.45}
+.jt-tcirc{width:30px;height:30px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:var(--sub)}
+.jt-tnode.done .jt-tcirc{background:var(--accent);color:#0b1220}
+.jt-tnode.current .jt-tcirc{background:transparent;border:2px solid var(--accent);color:var(--accent)}
+.jt-tnode-text{flex:1;min-width:0}
+.jt-tnode-label{font-size:13px;font-weight:700}
+.jt-tnode-sub{font-size:10px;color:var(--sub);margin-top:1px}
+.jt-tbadge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap;background:rgba(255,122,26,.12);color:var(--accent)}
+.jt-tbadge.clr{background:rgba(52,211,153,.12);color:var(--green)}
+.jt-tvline{width:2px;height:12px;margin:0 auto}
+.jt-branches{display:grid;grid-template-columns:1fr 1fr 1fr}
+.jt-branch{display:flex;flex-direction:column;align-items:center;padding:0 3px}
+.jt-bhead{font-size:9.5px;font-weight:700;letter-spacing:.3px;margin:5px 0 5px;text-align:center;white-space:nowrap}
+.jt-bnode{display:flex;align-items:flex-start;gap:5px;padding:6px 7px;background:var(--panel);border:1px solid var(--line);border-radius:8px;width:100%;box-sizing:border-box}
+.jt-bnode.locked{opacity:.3}
+.jt-bcirc{width:20px;height:20px;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;color:var(--sub)}
+.jt-bvline{width:2px;height:8px;margin:0 auto}
+.jt-bnode-label{font-size:10px;font-weight:700;line-height:1.3}
+.jt-bnode-sub{font-size:8.5px;color:var(--sub);margin-top:1px;line-height:1.3}
+.jt-dunk-calc{border:1px solid;border-radius:7px;padding:6px 8px;margin-bottom:6px;width:100%;box-sizing:border-box}
+/* BRANCH NODE MODAL */
+.bn-overlay{position:fixed;inset:0;z-index:300;background:rgba(4,8,18,.75);display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+.bn-panel{background:var(--panel);border:1px solid var(--line);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:480px;max-height:80vh;overflow-y:auto;animation:bnUp .25s ease}
+@keyframes bnUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.bn-head{font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:4px}
+.bn-title{font-size:19px;font-weight:800;margin-bottom:6px}
+.bn-goal{font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.5}
+.bn-drill{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.bn-drill-info{flex:1;min-width:0}
+.bn-drill-name{font-size:13px;font-weight:700}
+.bn-drill-dose{font-size:11px;color:var(--sub);margin-top:1px}
+.bn-yt{flex:none;font-size:11px;font-weight:700;color:#fff;background:#e11d48;padding:6px 10px;border-radius:8px;text-decoration:none;white-space:nowrap}
+.bn-complete{width:100%;padding:14px;border:none;border-radius:13px;background:var(--accent);color:#0b1220;font-size:14px;font-weight:800;margin-top:10px;cursor:pointer}
+.bn-complete.done{background:rgba(52,211,153,.15);color:var(--green);border:1px solid rgba(52,211,153,.4)}
+.bn-close{width:100%;padding:11px;border:none;border-radius:13px;background:transparent;color:var(--sub);font-size:13px;font-weight:600;margin-top:6px;cursor:pointer}
+/* EXERCISE YT LINK */
+.ex-yt{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#fff;background:#e11d48;padding:6px 11px;border-radius:8px;text-decoration:none;margin-top:9px}
+/* INSTALL */
+.install-btn{width:100%;padding:14px;border:none;border-radius:13px;background:var(--accent);color:#0b1220;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px}
+.install-guide .ig-row{font-size:12px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--line);line-height:1.6}
+.install-guide .ig-row:last-child{border:0}
+.install-guide b{color:var(--txt)}
+</style>
+</head>
+<body>
+
+<div id="obWrap">
+  <div class="ob-top">
+    <div class="ob-progress" id="obProg"></div>
+    <div class="ob-step-label" id="obStepLabel"></div>
+  </div>
+  <div class="ob-body" id="obBody"></div>
+  <div class="ob-foot" id="obFoot"></div>
+</div>
+
+<div id="appWrap">
+  <header>
+    <div class="hrow">
+      <div class="ball"></div>
+      <div class="brand"><small>HOOP STRENGTH</small>バスケ筋トレ</div>
+    </div>
+    <div class="stats">
+      <div class="sitem"><b id="stStreak" style="color:var(--accent)">0</b><span>🔥 連続日</span></div>
+      <div class="sitem"><b id="stStage">-</b><span>ステージ</span></div>
+      <div class="sitem"><b id="stWeek">0</b><span>今週実施</span></div>
+    </div>
+  </header>
+  <main>
+    <section class="view on" id="view-today">
+      <div class="gd-toggle" id="gdToggle">
+        <div><div class="gd-title">今日バスケの練習・試合があった</div><div class="gd-sub" id="gdSub">オフ → トレーニングモード</div></div>
+        <div class="switch" id="gdSwitch"></div>
+      </div>
+      <div id="sessionWrap"></div>
+    </section>
+    <section class="view" id="view-path">
+      <div class="mountain-header">
+        <div class="mh-goal" id="pathGoalLabel"></div>
+        <div class="mh-title" id="pathTitle"></div>
+        <div class="mh-sub" id="pathSub"></div>
+      </div>
+      <div style="padding:0 14px"><div class="path-wrap" id="pathWrap"></div></div>
+    </section>
+    <section class="view" id="view-profile">
+      <p class="sec">あなたのプロフィール</p>
+      <div class="profile-section" id="profileDetail"></div>
+      <p class="sec" style="margin-top:20px">📲 アプリとして使う</p>
+      <div class="profile-section" id="installSection">
+        <button class="install-btn" id="installBtn" style="display:none">📲 ホーム画面にインストール</button>
+        <div class="install-guide" id="installGuide">
+          <div class="ig-row"><b>iPhone (Safari)</b><br>共有ボタン <span style="opacity:.7">⬆️</span> → 「ホーム画面に追加」</div>
+          <div class="ig-row"><b>Android (Chrome)</b><br>メニュー <span style="opacity:.7">⋮</span> → 「アプリをインストール」または「ホーム画面に追加」</div>
+          <div class="ig-row"><b>PC (Chrome / Edge)</b><br>アドレスバー右端のインストールアイコン <span style="opacity:.7">⊕</span> をクリック</div>
+        </div>
+      </div>
+      <p class="sec" style="margin-top:20px">データ管理</p>
+      <button class="danger-btn" id="resetBtn">すべてリセット（やり直す）</button>
+    </section>
+  </main>
+  <nav class="bar" id="tabbar">
+    <button data-v="today" class="on"><span class="ic">🏀</span>今日</button>
+    <button data-v="path"><span class="ic">🗻</span>ルート</button>
+    <button data-v="profile"><span class="ic">⚙️</span>設定</button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+   DATA
+================================================================ */
+const GOALS = {
+  jump:{
+    name:'ジャンプ力', icon:'⚡', color:'#ff7a1a',
+    tagline:'リバウンドとブロックで圧倒的な高さへ',
+    peak:'自分の限界を超えたジャンプ力を手に入れる',
+    abilityQ:'ジャンプして一番高い時、何に届く？',
+    abilitySub:'リングの高さは305cm（10フィート）が基準です',
+    abilityOpts:[
+      {val:'none',  icon:'🏀', label:'ネットにも届かない',           desc:'手を伸ばしても網（約270cm）に届かない'},
+      {val:'net',   icon:'🏀', label:'ネットには触れる',             desc:'ジャンプすれば網付近まで届く（約270cm）'},
+      {val:'board', icon:'🏀', label:'ボードの下部あたりまで',       desc:'バックボード下端（約285cm）付近に届く'},
+      {val:'near',  icon:'🏀', label:'リムまであと少し（5cm以内）',  desc:'リム（305cm）の直下まで来ている'},
+      {val:'rim',   icon:'🏀', label:'リムに触れる',                 desc:'ジャンプして指先がリムに届く'},
+      {val:'dunk',  icon:'🏀', label:'ダンクができる',               desc:'ボールを持ってリングに入れられる（315cm+）'},
+    ],
+    abilityLabel:{'none':'ネット以下','net':'ネットに届く','board':'ボードまで届く','near':'リム直前','rim':'リムに触れる','dunk':'ダンクできる'},
+    stages:[
+      {num:1,title:'自重の土台を固める',focus:'自重スクワット完全習得',
+       milestone:'自重スクワット20回×3セットをゆっくり正確にこなせる',
+       sessions:{
+         body:[
+           {id:'bwsq',name:'自重スクワット',dose:'20回 × 3セット',icon:'🦵',key:true,
+            form:['足は肩幅・爪先をやや外向きに','胸を張りお尻を後ろに引きながらしゃがむ','太ももが床と平行になるまで下げる','踵で地面を押して戻る']},
+           {id:'bridge',name:'グルートブリッジ',dose:'15回 × 3セット',icon:'🍑',
+            form:['仰向け・膝を立て足は肩幅','お尻を持ち上げ頂点で1秒','ゆっくり下ろす。臀筋を意識']},
+           {id:'calf_bw',name:'カーフレイズ',dose:'20回 × 2セット',icon:'🦶',
+            form:['段差の縁に爪先を乗せる','母趾球で押し上げ頂点で1秒','ゆっくり踵を下ろす']},
+         ],
+         light:[
+           {id:'goblet',name:'ゴブレットスクワット',dose:'15回 × 3セット',icon:'🏋️',key:true,
+            form:['ダンベルを胸の前で両手で持つ','足は肩幅より少し広め','背中を立ててしゃがむ・太ももが平行まで'],
+            altKnee:{id:'legpress_light',name:'片足プレス（壁押し）',dose:'各15回 × 3',icon:'🦵',key:true,form:['壁に足を当てて押す・痛くない範囲で']}},
+           {id:'rdl_db',name:'ダンベルRDL',dose:'12回 × 3セット',icon:'🔥',
+            form:['背中をまっすぐ保ち股関節から前傾','ハムスト伸縮を感じたら戻す'],
+            altBack:{id:'bridge2',name:'グルートブリッジ',dose:'15回 × 3',icon:'🍑',form:['腰への負荷なしで臀筋を鍛える']}},
+           {id:'calf_db',name:'カーフレイズ（ダンベル加重）',dose:'20回 × 3セット',icon:'🦶',form:['ダンベルを持ち段差で実施']},
+         ],
+         gym:[
+           {id:'bsq_l',name:'バーベルスクワット（習得期・軽量）',dose:'12回 × 4セット',icon:'🏋️',key:true,
+            form:['バーは僧帽筋に・肩幅で立つ','胸を張りお尻を後ろに引く','太ももが床と平行まで下げる','踵で押して戻る・腰は反らさない'],
+            altKnee:{id:'legpress_gym',name:'レッグプレス',dose:'15回 × 4セット',icon:'🦵',key:true,form:['足は肩幅・台の中央','膝をつま先方向に向け押す','膝を伸ばしきらない']},
+            altBack:{id:'goblet_gym',name:'ゴブレットスクワット',dose:'15回 × 3セット',icon:'🏋️',key:true,form:['ダンベルを胸前・上体を立てたまましゃがむ']}},
+           {id:'rdl_bar',name:'バーベルRDL',dose:'10回 × 3セット',icon:'🔥',
+            form:['バーを太もも前に・背中まっすぐ前傾','ハムストを感じたら戻す'],
+            altBack:{id:'hip_thrust',name:'ヒップスラスト',dose:'12回 × 3セット',icon:'🍑',form:['ベンチに肩をのせ・バーを腰に','お尻を持ち上げ頂点で1秒']}},
+           {id:'calf_gym',name:'スタンディングカーフレイズ',dose:'20回 × 3セット',icon:'🦶',form:['マシンで高重量・頂点1秒キープ']},
+         ],
+         perf:[
+           {id:'hex_dl',name:'ヘックスバーデッドリフト（習得期）',dose:'8回 × 4セット',icon:'🏋️',key:true,
+            form:['バーの中心に立ちグリップを握る','背中まっすぐ・股関節から引く','爆発的に立ち上がる・ゆっくり下ろす'],
+            altKnee:{id:'legpress_perf',name:'レッグプレス（重量）',dose:'15回 × 4',icon:'🦵',key:true,form:['高重量で・膝の向きとつま先を揃える']},
+            altBack:{id:'trap_pull',name:'ヘックスバー片手引き',dose:'各8回 × 3',icon:'💪',form:['腰の負担を分散しながら引く']}},
+           {id:'bul_sq',name:'ブルガリアンスプリットスクワット',dose:'各10回 × 3セット',icon:'🦵',
+            form:['後ろ足を台に・前足で体を支える','上体をまっすぐ保ちながらしゃがむ','前足の踵で押して戻る'],
+            altKnee:{id:'hip_abd',name:'ヒップアブダクション',dose:'20回 × 3',icon:'🦵',form:['痛みのない範囲での股関節外転']}},
+           {id:'calf_perf',name:'ドンキーカーフレイズ',dose:'20回 × 4セット',icon:'🦶',form:['重力を最大限活かした深い可動域']},
+         ],
+       }},
+      {num:2,title:'加重で爆発力の基盤を作る',focus:'体重の60%でスクワット 8回×4セット',
+       milestone:'体重の60%の重量でスクワット8回×4セットこなせる（またはゴブレット30kg）',
+       sessions:{
+         body:[
+           {id:'jmpsq',name:'ジャンプスクワット',dose:'10回 × 4セット',icon:'⚡',key:true,
+            form:['自重スクワットの姿勢から','爆発的に飛び上がる','着地はつま先→踵で静かに吸収'],
+            altKnee:{id:'glute_kickback',name:'グルートキックバック',dose:'各15回 × 4',icon:'🍑',key:true,form:['四つ這いで後ろ足を蹴り上げる']},
+            altAnkle:{id:'seated_leg_curl',name:'レッグカール（着座）',dose:'15回 × 4',icon:'🦵',key:true,form:['ハムストリングスを意識して引く']}},
+           {id:'rdl_bw',name:'シングルレッグRDL',dose:'各10回 × 3セット',icon:'🔥',
+            form:['片足立ちで前傾・バランスを取る','ハムストのストレッチを感じる'],
+            altBack:{id:'bridge3',name:'シングルレッグブリッジ',dose:'各15回 × 3',icon:'🍑',form:['片足でお尻を持ち上げ頂点1秒']}},
+           {id:'split_jmp',name:'スプリットジャンプ',dose:'各8回 × 3セット',icon:'🦘',
+            form:['前後に足を開いて','飛び上がり空中で入れ替え','着地は膝を曲げて吸収'],
+            altKnee:{id:'wall_sit',name:'ウォールシット',dose:'45秒 × 3',icon:'🦵',key:false,form:['壁に背中をつけ膝90度で止める']}},
+         ],
+         light:[
+           {id:'goblet2',name:'ゴブレットスクワット（加重）',dose:'10回 × 4セット',icon:'🏋️',key:true,
+            form:['できる限り重いダンベルで','フォームを崩さないことを優先'],
+            altKnee:{id:'legpress_light2',name:'スプリットスクワット（後ろ足床）',dose:'各10回 × 3',icon:'🦵',key:true,form:['浅めの前後開脚から押す']}},
+           {id:'rdl2',name:'ダンベルRDL（重量UP）',dose:'10回 × 4セット',icon:'🔥',form:['前回より重量を上げる'],
+            altBack:{id:'hip_thrust2',name:'ダンベルヒップスラスト',dose:'12回 × 4',icon:'🍑',form:['ベンチに肩をのせ・ダンベルを腰に']}},
+           {id:'step_up',name:'ダンベルステップアップ',dose:'各10回 × 3セット',icon:'👟',
+            form:['台に片足を乗せ・前足の踵で押す','後ろ足はぶらさず鍛える'],
+            altKnee:{id:'hip_ext',name:'ダンベルヒップエクステンション',dose:'15回 × 3',icon:'🍑',key:false,form:['うつぶせでダンベルを踵に挟んで上げる']}},
+         ],
+         gym:[
+           {id:'bsq_m',name:'バーベルスクワット（体重60%）',dose:'8回 × 4セット',icon:'🏋️',key:true,
+            form:['体重の60%が目安','ゆっくり下ろし・爆発的に押す'],
+            altKnee:{id:'legpress2',name:'レッグプレス（高重量）',dose:'10回 × 4',icon:'🦵',key:true,form:['体重の1.5倍以上を目標に']},
+            altBack:{id:'ssb_sq',name:'セーフティバースクワット',dose:'10回 × 4',icon:'🏋️',key:true,form:['腰への負担が少ないバリエーション']}},
+           {id:'rdl_m',name:'バーベルRDL（重量UP）',dose:'8回 × 4セット',icon:'🔥',form:['前回より重量を上げる'],
+            altBack:{id:'hip_thrust_bar',name:'バーベルヒップスラスト',dose:'10回 × 4',icon:'🍑',form:['ベンチに肩・バーを腰に乗せる']}},
+           {id:'boxjmp',name:'ボックスジャンプ',dose:'5回 × 4セット',icon:'⚡',
+            form:['台の前で腕を振って構える','両足で踏み切り台へ','静かに着地・降りて繰り返す'],
+            altKnee:{id:'seated_box_step',name:'台への片足ステップアップ',dose:'各8回 × 3',icon:'🦵',form:['台に片足をのせ押して立つ・衝撃なし']},
+            altAnkle:{id:'box_push',name:'プッシュアップ（爆発系）',dose:'8回 × 4',icon:'💪',form:['手が地面から離れる勢いで押す']}},
+         ],
+         perf:[
+           {id:'bsq_heavy',name:'バーベルスクワット（体重60%以上）',dose:'5回 × 5セット',icon:'🏋️',key:true,
+            form:['体重の60〜80%で','ゆっくり3秒で下ろし・爆発的に上げる'],
+            altKnee:{id:'hex_dl2',name:'ヘックスバーデッドリフト（パワー）',dose:'5回 × 5',icon:'🏋️',key:true,form:['体重以上の重量で爆発的に引く']}},
+           {id:'box_jmp2',name:'ボックスジャンプ（高台）',dose:'5回 × 4セット',icon:'⚡',
+            form:['できる最大高さの台','踏み切りから最大高度','静かに着地・降りてリセット'],
+            altKnee:{id:'sled_push',name:'スレッドプッシュ（低負荷）',dose:'20m × 4',icon:'💨',key:false,form:['前傾姿勢で素早く足を動かす']}},
+           {id:'sled_push2',name:'スレッドプッシュ（重負荷）',dose:'20m × 5本',icon:'💪',form:['腕でなく脚で押す','膝が曲がったまま強く踏み込む'],
+            altAnkle:{id:'seated_calf',name:'シーテッドカーフレイズ',dose:'25回 × 4',icon:'🦶',form:['座って膝上のパッドを押し上げる']}},
+         ],
+       }},
+      {num:3,title:'爆発力を解放する',focus:'深い着地→即ジャンプのスプリント反応',
+       milestone:'デプスジャンプの接地時間が短く・高さが出てきた実感がある',
+       sessions:{
+         body:[
+           {id:'depth_bw',name:'デプスジャンプ（台20〜30cm）',dose:'5回 × 5セット',icon:'⚡',key:true,
+            form:['台から飛び降りる','地面に触れた瞬間に即ジャンプ','接地時間を極限まで短く'],
+            altKnee:{id:'isometric_sq',name:'イソメトリックスクワット',dose:'45秒 × 4',icon:'🦵',key:true,form:['平行位置で止めて筋力を高める（衝撃なし）']},
+            altAnkle:{id:'upper_plyo',name:'爆発的クラッピングプッシュアップ',dose:'6回 × 4',icon:'💪',key:true,form:['手拍子できる勢いで押す']}},
+           {id:'plio_bnd',name:'バンドスクワット（反動使用）',dose:'15回 × 4セット',icon:'🔥',form:['バンドを膝上に・膝が内に入らないよう外に開く']},
+         ],
+         light:[
+           {id:'depth_l',name:'デプスジャンプ',dose:'5回 × 5セット',icon:'⚡',key:true,
+            form:['台から飛び降り・即ジャンプ','接地最短に'],
+            altKnee:{id:'concentric_sq',name:'コンセントリックスクワット',dose:'8回 × 4',icon:'🦵',key:true,form:['しゃがんだ姿勢からスタート（伸ばすのみ）']}},
+           {id:'bnd_jump2',name:'バンドジャンプスクワット',dose:'10回 × 4セット',icon:'💥',form:['バンド抵抗で爆発的に飛ぶ']},
+         ],
+         gym:[
+           {id:'pwr_clean',name:'ハングパワークリーン',dose:'5回 × 5セット',icon:'⚡',key:true,
+            form:['バーを太もも中程で保持','股関節を爆発的に伸展','肘を素早く回してキャッチ'],
+            altKnee:{id:'pwr_clean_sit',name:'シーテッドメディシンボールスロー',dose:'10回 × 4',icon:'💪',key:true,form:['座って前方に爆発的に投げる']},
+            altBack:{id:'db_snatch',name:'ダンベルスナッチ',dose:'各5回 × 4',icon:'⚡',key:true,form:['片手で爆発的に引き上げる']}},
+           {id:'jmpsq_bar',name:'バーベルジャンプスクワット（体重30%）',dose:'6回 × 4セット',icon:'🚀',
+            form:['軽いバーで爆発的に押す','足が地面から離れてもOK'],
+            altKnee:{id:'leg_press_exp',name:'レッグプレス（爆発的押し）',dose:'8回 × 4',icon:'🦵',form:['最大スピードで押す・戻しはゆっくり']}},
+         ],
+         perf:[
+           {id:'pwr_clean2',name:'パワークリーン',dose:'3回 × 6セット',icon:'⚡',key:true,
+            form:['床から引く・爆発的に','体重の50〜60%で品質重視'],
+            altKnee:{id:'hex_jump',name:'ヘックスバージャンプ',dose:'5回 × 5',icon:'🚀',key:true,form:['ヘックスバーを使い爆発的にジャンプ']}},
+           {id:'depth2',name:'デプスジャンプ（高台40〜50cm）',dose:'5回 × 5セット',icon:'💥',form:['高い台で反応速度を上げる']},
+           {id:'sled3',name:'スレッドプッシュ（スプリント）',dose:'15m × 6本',icon:'💨',form:['軽い負荷で最速スプリント']},
+         ],
+       }},
+      {num:4,title:'バスケ動作に統合する',focus:'競技動作でジャンプ力を活かす',
+       milestone:'試合でリバウンド・ブロックの高さが体感できた',
+       sessions:{
+         body:[
+           {id:'approach',name:'助走ジャンプ練習',dose:'10本 × 3セット',icon:'🏀',key:true,
+            form:['3〜4歩の助走から踏み込み','最後の一歩を強く踏み込んで飛ぶ','ゴール下をイメージして']},
+           {id:'cont_jmp',name:'連続ジャンプ（30秒）',dose:'30秒 × 4セット',icon:'⚡',
+            form:['できるだけ速く連続ジャンプ','疲れても高さを維持しようとする']},
+         ],
+         light:[
+           {id:'vest_jmp',name:'ウェイトベスト助走ジャンプ',dose:'8本 × 3セット',icon:'🏀',key:true,
+            form:['5〜10%加重で助走ジャンプ','外してから跳ぶと垂直跳びが伸びる']},
+           {id:'bnd_vert',name:'バンドレジスト垂直跳び',dose:'8回 × 4セット',icon:'⚡',form:['バンドを腰に巻いた抵抗下で跳ぶ']},
+         ],
+         gym:[
+           {id:'vest_gym',name:'ウェイトベスト助走ジャンプ',dose:'8本 × 4セット',icon:'🏀',key:true,
+            form:['5〜10%加重で助走ジャンプ']},
+           {id:'sqt_max',name:'バーベルスクワット（最大重量チャレンジ）',dose:'1〜3RM',icon:'🏋️',
+            form:['月1回の記録チャレンジ・体重越えが目安']},
+         ],
+         perf:[
+           {id:'depth_app',name:'デプスジャンプ→助走ジャンプ',dose:'5本 × 5セット',icon:'⚡',key:true,
+            form:['台から降り・即助走→飛ぶ','試合のリバウンドタイミングをイメージ']},
+           {id:'hex_max',name:'ヘックスバー最大ジャンプ',dose:'3回 × 5セット',icon:'🚀',form:['最大努力で・毎週記録を更新する']},
+           {id:'sled_acc',name:'スレッドプッシュ→スプリント→ジャンプ',dose:'5本',icon:'💥',form:['コンビネーションで試合強度を作る']},
+         ],
+       }},
+    ]
+  },
+
+  speed:{
+    name:'スピード・一歩目', icon:'💨', color:'#3b82f6',
+    tagline:'ドライブの一歩目で相手を置き去りにする',
+    peak:'コート上で誰よりも速い一歩目と直線スピード',
+    abilityQ:'一歩目のスピード、正直どのくらい？',
+    abilitySub:'ドライブを仕掛けた瞬間の速さで判断してください',
+    abilityOpts:[
+      {val:'slow', icon:'💨', label:'よく出遅れる・先手が取れない', desc:'仕掛けても間合いを詰められない'},
+      {val:'avg',  icon:'💨', label:'チーム内で平均的',            desc:'突出はないが普通に動ける'},
+      {val:'fast', icon:'💨', label:'一歩目は速い方',              desc:'ドライブで有利なことが多い'},
+      {val:'elite',icon:'💨', label:'競技レベルで通用するスピード', desc:'対戦相手からも評価される'},
+    ],
+    abilityLabel:{slow:'よく出遅れる',avg:'平均的',fast:'一歩目は速い',elite:'競技レベル'},
+    stages:[
+      {num:1,title:'股関節爆発力を作る',focus:'ヒップヒンジジャンプ 10回×4セット',
+       milestone:'ヒップヒンジジャンプで地面を爆発的に押す感覚が明確に掴める',
+       sessions:{
+         body:[
+           {id:'hip_jmp',name:'ヒップヒンジジャンプ',dose:'10回 × 4セット',icon:'⚡',key:true,
+            form:['腰を引いて前傾（股関節ヒンジ）','股関節を爆発的に伸展して飛ぶ','腕を後ろから前へ力強く振る']},
+           {id:'broad_jmp',name:'立ち幅跳び',dose:'5回 × 4セット',icon:'💥',
+            form:['腕を後ろに溜め→前方へ爆発','母趾球で地面を蹴り前方へ','距離を毎回記録する']},
+           {id:'a_skip',name:'Aスキップ',dose:'20m × 4本',icon:'💨',
+            form:['膝を素早く高く上げる','支持脚は地面を弾くように','腕は大きくリズミカルに振る']},
+         ],
+         light:[
+           {id:'kb_swing',name:'ケトルベルスイング',dose:'15回 × 4セット',icon:'⚡',key:true,
+            form:['股関節の爆発的伸展が核心','腕は振らない・体が押す感覚','トップで完全に伸展する']},
+           {id:'broad_jmp',name:'立ち幅跳び',dose:'5回 × 4',icon:'💥',form:['最大距離を狙う']},
+           {id:'a_skip',name:'Aスキップ',dose:'20m × 4',icon:'💨',form:['膝を高く素早く']},
+         ],
+         gym:[
+           {id:'trap_spd',name:'トラップバーデッドリフト（爆発的）',dose:'5回 × 4セット',icon:'🏋️',key:true,
+            form:['床から爆発的に引く','立ち上がりを最大スピードで','下ろしはゆっくり・疲れを溜めない'],
+            altBack:{id:'hip_thr_spd',name:'バーベルヒップスラスト（重量）',dose:'8回 × 4',icon:'🍑',key:true,form:['高重量で・頂点で1秒']}},
+           {id:'broad_jmp',name:'立ち幅跳び',dose:'5回 × 4',icon:'💥',form:['最大距離']},
+           {id:'a_skip2',name:'Aスキップ（高速）',dose:'20m × 6',icon:'💨',form:['限界速度で膝を上げる']},
+         ],
+         perf:[
+           {id:'pc_spd',name:'パワークリーン',dose:'5回 × 4セット',icon:'⚡',key:true,
+            form:['ファーストプルで地面をしっかり押す','セカンドプルで股関節を爆発的に伸展','肘を素早く回してキャッチ']},
+           {id:'sled_heavy2',name:'スレッドプッシュ（重負荷）',dose:'20m × 5本',icon:'💨',
+            form:['低い姿勢・脚全体で押す','前傾を保つ']},
+           {id:'trap_jmp2',name:'ヘックスバージャンプ',dose:'5回 × 4',icon:'💥',form:['最大爆発力で']},
+         ],
+       }},
+      {num:2,title:'加速メカニクスを磨く',focus:'10mダッシュ スタートから3歩の質',
+       milestone:'10mダッシュの自己最速タイムを安定して出せる',
+       sessions:{
+         body:[
+           {id:'wall_drv',name:'ウォールドライブ（壁押しスプリント）',dose:'各脚10回 × 3セット',icon:'💨',key:true,
+            form:['壁に手をつき前傾45度','片膝を爆発的に引き上げる','前傾を崩さない']},
+           {id:'dash10b',name:'10mダッシュ（スタート重視）',dose:'8本',icon:'⚡',
+            form:['低姿勢スタート・前傾のまま加速','最初の3歩が全て']},
+           {id:'bkped2',name:'バックペダル→フロントターンダッシュ',dose:'往復5本',icon:'🔄',
+            form:['後退からターンダッシュへ','ターンで重心を素早く切り替える']},
+         ],
+         light:[
+           {id:'wall_drv2',name:'ウォールドライブ',dose:'各脚10回 × 3',icon:'💨',key:true,form:['前傾45度・爆発的に膝を引く']},
+           {id:'bnd_sprint2',name:'バンドレジストスプリント',dose:'10m × 6本',icon:'💨',form:['バンドで抵抗しながら走る']},
+           {id:'dash10c',name:'10mダッシュ',dose:'8本',icon:'⚡',form:['スタートを鋭く']},
+         ],
+         gym:[
+           {id:'sled_acc',name:'スレッドプッシュ（加速フォーカス）',dose:'10m × 6本',icon:'💨',key:true,
+            form:['体重の50〜70%負荷','低い姿勢で最大スピード','スレッドから離れたら即スプリントへ']},
+           {id:'dash10d',name:'10mダッシュ',dose:'8本',icon:'⚡',form:['スタートを鋭く']},
+         ],
+         perf:[
+           {id:'sled_acc2',name:'スレッドプッシュ→フリースプリント',dose:'10m+20m × 5本',icon:'💨',key:true,
+            form:['スレッドで加速筋を起こしてすぐダッシュ']},
+           {id:'dash_res',name:'バンドレジストダッシュ',dose:'10m × 6本',icon:'⚡',form:['バンドで水平方向の抵抗']},
+         ],
+       }},
+      {num:3,title:'一歩目をコート動作へ',focus:'ドライブのファーストステップ練習',
+       milestone:'ドライブ開始の一歩目でディフェンスに反応させられる実感',
+       sessions:{
+         body:[
+           {id:'first_step',name:'ファーストステップドリル',dose:'左右各10回 × 4セット',icon:'🏀',key:true,
+            form:['ボールミート姿勢から','外側の足で地面を押して踏み込む','ドリブルと同時に重心移動']},
+           {id:'react_spd',name:'視覚合図→ダッシュ（リアクションスプリント）',dose:'10本',icon:'⚡',
+            form:['パートナーの動きに反応してダッシュ','反応から動き出しまでの時間を短く']},
+         ],
+         light:[
+           {id:'first_step2',name:'ファーストステップ（バンド抵抗）',dose:'左右各10回 × 4',icon:'🏀',key:true,form:['バンドで抵抗しながら一歩目を練習']},
+           {id:'react_spd2',name:'リアクションスプリント',dose:'10本',icon:'⚡',form:['合図に反応してダッシュ']},
+         ],
+         gym:[
+           {id:'complex_spd2',name:'スクワット→即ダッシュ コンプレックス',dose:'5セット',icon:'⚡',key:true,
+            form:['バーベルスクワット2回→即10mダッシュ','筋力を速度に変換する練習']},
+           {id:'first_step3',name:'ファーストステップドリル',dose:'左右各10回 × 4',icon:'🏀',form:['コート実践を想定して']},
+         ],
+         perf:[
+           {id:'complex_spd3',name:'クリーン→ダッシュ コンプレックス',dose:'5セット',icon:'⚡',key:true,
+            form:['パワークリーン2回→即10mダッシュ']},
+           {id:'sled_spd3',name:'スレッド（軽負荷・最速）',dose:'15m × 6本',icon:'💨',form:['体重の15〜20%・最速で']},
+         ],
+       }},
+      {num:4,title:'試合の一歩目を完成させる',focus:'1対1でディフェンスを抜けるかテスト',
+       milestone:'試合でドライブの一歩目が効いている実感',
+       sessions:{
+         body:[
+           {id:'game_1v1',name:'1対1ファーストステップ練習',dose:'10本 × 3セット',icon:'🏀',key:true,
+            form:['ディフェンスを意識した一歩目','緩急をつけて仕掛ける','抜けた後のスプリントも全力']},
+           {id:'fullcourt_spd',name:'フルコート全力往復',dose:'5本',icon:'💨',form:['毎本全力']},
+         ],
+         light:[
+           {id:'vest_dash',name:'ウェイトベストダッシュ→外してダッシュ',dose:'5本',icon:'💨',key:true,form:['加重→除去で一歩目が軽くなる感覚']},
+           {id:'game_1v1b',name:'1対1ファーストステップ',dose:'10本 × 3',icon:'🏀',form:['実戦を想定して']},
+         ],
+         gym:[
+           {id:'peaking',name:'スピードピーキングスプリント',dose:'30m × 5本',icon:'💨',key:true,form:['完全休息でピーク速度を狙う']},
+           {id:'game_1v1c',name:'1対1ファーストステップ',dose:'10本 × 3',icon:'🏀',form:['実戦を想定して']},
+         ],
+         perf:[
+           {id:'peak_sled',name:'スレッド（軽負荷）→フリースプリント→1対1',dose:'5ラウンド',icon:'💨',key:true,form:['コンプレックスで試合強度を作る']},
+           {id:'game_1v1d',name:'1対1ファーストステップ',dose:'10本 × 3',icon:'🏀',form:['実戦を想定して']},
+         ],
+       }},
+    ]
+  },
+
+  agility:{
+    name:'俊敏性・切り返し', icon:'⚡', color:'#06b6d4',
+    tagline:'誰も追いつけない切り返しで守備を翻弄する',
+    peak:'どんな方向変換も瞬時に対応できるアジリティ',
+    abilityQ:'切り返しや方向転換のキレ、どのくらい？',
+    abilitySub:'ディフェンス・ドライブのカットなど方向転換で判断してください',
+    abilityOpts:[
+      {val:'slow',  icon:'⚡', label:'方向転換で遅れる・バランスを崩す', desc:'止まる・切り返すのに時間がかかる'},
+      {val:'avg',   icon:'⚡', label:'チーム内で平均的',                 desc:'普通に動けるが突出していない'},
+      {val:'fast',  icon:'⚡', label:'切り返しは得意な方',               desc:'Vカットやチェンジオブペースが効く'},
+      {val:'elite', icon:'⚡', label:'競技レベルで通用する俊敏性',       desc:'対戦相手からも評価される'},
+    ],
+    abilityLabel:{slow:'切り返しで遅れる',avg:'平均的',fast:'切り返しは得意',elite:'競技レベル'},
+    stages:[
+      {num:1,title:'止まる技術（デセレレーション）',focus:'ジャンプストップを完璧に',
+       milestone:'両足・片足でのジャンプストップをどんな角度からでも崩れずに止まれる',
+       sessions:{
+         body:[
+           {id:'jmp_stop',name:'ジャンプストップ練習',dose:'10回 × 4セット',icon:'🛑',key:true,
+            form:['助走から両足同時着地','着地と同時に膝を曲げ重心を下げる','前後左右どの方向からも止まれるように']},
+           {id:'decel_run',name:'デセレレーションラン',dose:'20m × 5本',icon:'🛑',
+            form:['全力→合図で完全停止','着地は母趾球から踵へ','ズルズル流れないよう体幹で止める']},
+           {id:'stick_land',name:'スティックランディング（片足着地保持）',dose:'左右各8回 × 3',icon:'🦵',
+            form:['ジャンプして片足着地','3秒間バランスを保つ','膝が内に入らないよう注意']},
+         ],
+         light:[
+           {id:'jmp_stop2',name:'ジャンプストップ（バンド抵抗）',dose:'10回 × 4',icon:'🛑',key:true,form:['バンドで前方に引かれながら止まる練習']},
+           {id:'stick_land2',name:'スティックランディング',dose:'左右各8回 × 3',icon:'🦵',form:['片足着地を3秒保持']},
+           {id:'decel_run2',name:'デセレレーションラン',dose:'20m × 5',icon:'🛑',form:['全力→合図で停止']},
+         ],
+         gym:[
+           {id:'nordic_curl',name:'ノルディックカールECC（ハムスト強化）',dose:'5回 × 4セット',icon:'🦵',key:true,
+            form:['膝立ちで前傾・ゆっくり倒れる','切り返しに必要なハムストを強化','できない場合はハーフで']},
+           {id:'jmp_stop3',name:'ジャンプストップ練習',dose:'10回 × 4',icon:'🛑',form:['完璧な着地を積み上げる']},
+           {id:'rdl_ecc',name:'シングルRDL（ゆっくり下ろす）',dose:'各8回 × 3',icon:'🔥',form:['4秒かけて下ろす・着地衝撃吸収の練習']},
+         ],
+         perf:[
+           {id:'nordic2',name:'ノルディックカール（フル）',dose:'5回 × 5セット',icon:'🦵',key:true,form:['フル可動域で・ハムストを極限まで鍛える']},
+           {id:'force_plate',name:'コントロールジャンプ（左右対称チェック）',dose:'各方向5本',icon:'⚡',form:['着地衝撃の左右差をなくす']},
+           {id:'sled_brake',name:'スレッドブレーキング',dose:'10m × 5',icon:'🛑',form:['スレッドで前後に引きながら停止練習']},
+         ],
+       }},
+      {num:2,title:'ラテラルパワー（横の力）',focus:'ラテラルバウンド 左右各10回×4セット',
+       milestone:'ラテラルバウンドで片足着地をコントロールし横への爆発力が出る',
+       sessions:{
+         body:[
+           {id:'lat_bnd',name:'ラテラルバウンド',dose:'左右各10回 × 4セット',icon:'🦘',key:true,
+            form:['片足踏み切りで横に跳ぶ','着地足でしっかり止まる','できるだけ広い幅を狙う']},
+           {id:'slide2',name:'ディフェンススライド（パワー意識）',dose:'30秒 × 4',icon:'👟',
+            form:['ただ横移動ではなく地面を爆発的に押す','踏み込み足で強く押し出す']},
+           {id:'ladder_lat',name:'ラダー（ラテラル）',dose:'6往復',icon:'⚡',
+            form:['横向きで・できる限り速く','足を高く・テンポよく']},
+         ],
+         light:[
+           {id:'lat_bnd2',name:'ラテラルバウンド（バンド抵抗）',dose:'左右各10回 × 4',icon:'🦘',key:true,form:['バンドで抵抗して横に爆発的に跳ぶ']},
+           {id:'bnd_lat2',name:'バンドラテラルウォーク→ダッシュ',dose:'5往復 × 3',icon:'👟',form:['横歩き後に即ダッシュへ転換']},
+           {id:'ladder_lat2',name:'ラダー（ラテラル）',dose:'6往復',icon:'⚡',form:['横向きで最速']},
+         ],
+         gym:[
+           {id:'lat_bnd3',name:'ラテラルバウンド',dose:'左右各10回 × 4',icon:'🦘',key:true,form:['地面を爆発的に押す・着地を安定させる']},
+           {id:'sled_lat2',name:'スレッドラテラルプッシュ',dose:'10m × 5本',icon:'💨',form:['横向きに押す・押し出し脚を意識']},
+           {id:'rdl_lat',name:'シングルRDLラテラルランジコンボ',dose:'各8回 × 3',icon:'🦵',form:['RDL→横ランジを連続']},
+         ],
+         perf:[
+           {id:'lat_bnd4',name:'ラテラルバウンド（最大幅）',dose:'左右各8回 × 5',icon:'🦘',key:true,form:['毎本最大距離を更新しようとする']},
+           {id:'sled_lat3',name:'スレッドラテラル＋フォワードスプリント',dose:'10m+10m × 5',icon:'💨',form:['ラテラルプッシュから前方ダッシュへ即転換']},
+         ],
+       }},
+      {num:3,title:'リアクティブアジリティ',focus:'Tドリルで自己最速タイムを出す',
+       milestone:'パートナーの動きに反応した方向転換が0.5秒以内に始動できる',
+       sessions:{
+         body:[
+           {id:'tdrill2',name:'Tドリル（コーン4つ）',dose:'5本',icon:'🏀',key:true,
+            form:['T字配置・タッチしながら最速完走','フォワード→ラテラル→バックの連続','自己タイムを記録して毎回更新']},
+           {id:'mirror_drill',name:'ミラードリル（1対1）',dose:'30秒 × 4セット',icon:'👥',
+            form:['対面でパートナーの動きをコピー','予測せず反応で動く','前後左右全方向に対応']},
+           {id:'react2',name:'リアクションスプリント',dose:'10本',icon:'⚡',form:['音や視覚合図に反応してダッシュ']},
+         ],
+         light:[
+           {id:'tdrill3',name:'Tドリル（バンド抵抗）',dose:'5本',icon:'🏀',key:true,form:['バンドを体に巻いてTドリル']},
+           {id:'mirror_drill2',name:'ミラードリル',dose:'30秒 × 4',icon:'👥',form:['パートナーの動きに即反応']},
+         ],
+         gym:[
+           {id:'tdrill4',name:'Tドリル',dose:'5本',icon:'🏀',key:true,form:['自己最速タイムを狙う']},
+           {id:'complex_agi',name:'スクワット→Tドリル コンプレックス',dose:'5セット',icon:'⚡',form:['スクワット2回→即Tドリル']},
+           {id:'sled_agi',name:'スレッドラテラル',dose:'10m × 5',icon:'💨',form:['横への爆発力']},
+         ],
+         perf:[
+           {id:'tdrill5',name:'Tドリル（クリーン後）',dose:'5本',icon:'🏀',key:true,form:['クリーン1本→即Tドリル・疲弊状態でのアジリティ']},
+           {id:'react_rand',name:'ランダム方向リアクション',dose:'10本',icon:'⚡',form:['コーチの指示をランダムで・予測不能に対応']},
+         ],
+       }},
+      {num:4,title:'バスケ特化カット',focus:'Vカット・Lカットで相手を外す',
+       milestone:'試合でカットムーブが相手に読まれなくなった実感',
+       sessions:{
+         body:[
+           {id:'v_cut',name:'Vカット練習',dose:'左右各10本 × 3セット',icon:'🏀',key:true,
+            form:['コーンに向かってダッシュ','コーンの手前でジャンプストップ','逆方向に爆発的にカットする']},
+           {id:'l_cut',name:'Lカット（エルカット）練習',dose:'左右各8本 × 3',icon:'🏀',
+            form:['直角に方向を変えるカット','外足でしっかり押し出す']},
+           {id:'off_ball',name:'オフボール動き出し練習',dose:'10本 × 3',icon:'🏀',form:['パスを受ける前の2〜3歩の動き出しを磨く']},
+         ],
+         light:[
+           {id:'v_cut2',name:'Vカット（バンド抵抗）',dose:'左右各10本 × 3',icon:'🏀',key:true,form:['バンドで抵抗しながらカット']},
+           {id:'l_cut2',name:'Lカット',dose:'左右各8本 × 3',icon:'🏀',form:['鋭い直角カット']},
+         ],
+         gym:[
+           {id:'v_cut3',name:'Vカット練習',dose:'左右各10本 × 3',icon:'🏀',key:true,form:['完璧なフォームで']},
+           {id:'complex_agi2',name:'クリーン→即カットドリル',dose:'5セット',icon:'⚡',form:['クリーン→即Vカット・試合強度']},
+         ],
+         perf:[
+           {id:'v_cut4',name:'Vカット→ファーストステップ コンプレックス',dose:'5セット',icon:'🏀',key:true,form:['カット後の一歩目まで全力']},
+           {id:'full_seq',name:'フルシーケンスドリル',dose:'5ラウンド',icon:'💥',form:['ランダム合図で任意のカットを実行']},
+         ],
+       }},
+    ]
+  },
+
+  strength:{
+    name:'フィジカルの強さ', icon:'🛡️', color:'#a78bfa',
+    tagline:'接触で負けない当たりの強さと安定感',
+    peak:'コンタクトを恐れず積極的にプレーできる体',
+    abilityQ:'相手とのコンタクト、今はどのくらい対応できる？',
+    abilitySub:'正直に選ぶと最適なプランになります',
+    abilityOpts:[
+      {val:'weak',  icon:'🛡️', label:'接触でよろける・押し負ける',      desc:'コンタクトで体が崩れることが多い'},
+      {val:'avg',   icon:'🛡️', label:'普通に当たれるが主導権は取れない', desc:'ある程度対応できる'},
+      {val:'strong',icon:'🛡️', label:'自分から当たりにいける',           desc:'コンタクトを恐れず積極的にプレー'},
+      {val:'elite', icon:'🛡️', label:'フィジカルが武器の一つ',           desc:'相手を押し込めることが多い'},
+    ],
+    abilityLabel:{weak:'接触でよろける',avg:'普通に当たれる',strong:'積極的に当たれる',elite:'フィジカルが武器'},
+    stages:[
+      {num:1,title:'プッシュ&プル基礎',focus:'腕立て15回×3セット',milestone:'腕立て15回を3セット連続でできる',
+       sessions:{body:[{id:'pu',name:'プッシュアップ',dose:'15回 × 3',icon:'💪',key:true,form:['肩幅より少し広め','体を一直線に保ち胸を下げる','肘を伸ばして押し戻す']},{id:'plank',name:'プランク',dose:'45秒 × 3',icon:'🔥',form:['肘を肩の真下に・一直線']},{id:'invrow',name:'テーブル下懸垂',dose:'10回 × 3',icon:'💪',form:['テーブル下に仰向け・胸を引き寄せる']},],light:[{id:'pu',name:'プッシュアップ',dose:'15回 × 3',icon:'💪',key:true,form:['正しいフォームで']},{id:'dbrow',name:'ダンベルロウ',dose:'12回 × 3',icon:'🏋️',form:['背中を平行に保ち引く']},],gym:[{id:'bench',name:'ベンチプレス',dose:'12回 × 4',icon:'🏋️',key:true,form:['肩幅より少し広めに握る','肘を45度で落とす','バウンドさせない']},{id:'row_bar',name:'バーベルロウ',dose:'10回 × 4',icon:'💪',form:['背中を平行に保ちへそに引く']},],perf:[{id:'bench2',name:'ベンチプレス（体重の70%以上）',dose:'8回 × 4',icon:'🏋️',key:true,form:['高重量でコントロール']},{id:'wtd_pull',name:'加重懸垂',dose:'5回 × 4',icon:'💪',form:['ウェイトベルトで加重して引く']},],}},
+      {num:2,title:'体幹で安定感を作る',focus:'プランク60秒×4セット',milestone:'どこからのコンタクトでも体幹が崩れない安定感',
+       sessions:{body:[{id:'plank2',name:'プランク',dose:'60秒 × 4',icon:'🔥',key:true,form:['一直線・お腹を締める']},{id:'sideplk',name:'サイドプランク',dose:'左右40秒 × 3',icon:'🔥',form:['腰を落とさない']},{id:'dead_bug',name:'デッドバグ',dose:'左右12回 × 3',icon:'🐛',form:['腰を床につけたまま対角を伸ばす']},],light:[{id:'plank2',name:'プランク',dose:'60秒 × 4',icon:'🔥',key:true,form:['完璧な一直線']},{id:'palof',name:'パロフプレス',dose:'左右15回 × 3',icon:'🔥',form:['バンドを胸前で押し出す・体は回さない']},],gym:[{id:'plank2',name:'プランク',dose:'60秒 × 4',icon:'🔥',key:true,form:['完璧な一直線']},{id:'pallof_cab',name:'ケーブルパロフプレス',dose:'15回 × 3',icon:'🔥',form:['体を回転させない']},{id:'suit',name:'スーツケースキャリー',dose:'20m × 4',icon:'💪',form:['片手にダンベル・体を真っ直ぐ保ちながら歩く']},],perf:[{id:'plank2',name:'プランク（負荷あり）',dose:'60秒 × 4',icon:'🔥',key:true,form:['背中に重りを乗せる']},{id:'ab_rollout',name:'アブホイール',dose:'10回 × 4',icon:'🔥',form:['膝から→立位へ・腰を反らさない']},{id:'fs_carry',name:'ファーマーズキャリー',dose:'30m × 4',icon:'💪',form:['高重量で体を直立に保ちながら歩く']},],}},
+      {num:3,title:'全身の連動力',focus:'デッドリフト体重超え',milestone:'デッドリフトで体重と同じ重量を引ける',
+       sessions:{body:[{id:'hip_exp',name:'ヒップヒンジジャンプ',dose:'10回 × 4',icon:'⚡',key:true,form:['腰を引いて前傾・爆発的に伸展してジャンプ']},{id:'plyo_pu',name:'爆発的プッシュアップ',dose:'8回 × 3',icon:'💪',form:['手が離れる勢いで押す']},],light:[{id:'kb_swing',name:'ケトルベルスイング',dose:'15回 × 4',icon:'⚡',key:true,form:['股関節の爆発的伸展・腕は振らない']},{id:'plyo_pu2',name:'爆発的プッシュアップ',dose:'8回 × 3',icon:'💪',form:['勢いよく押す']},],gym:[{id:'deadlift',name:'デッドリフト',dose:'5回 × 4',icon:'🏋️',key:true,form:['バーは脛の近くに','背中まっすぐ・股関節から引く'],altBack:{id:'trap_dl3',name:'トラップバーデッドリフト',dose:'5回 × 4',icon:'🏋️',key:true,form:['腰への負担が少ない・同じく背中まっすぐ']}},{id:'chin_up',name:'チンアップ',dose:'6回 × 4',icon:'💪',form:['肩幅・胸をバーに引きつける']},],perf:[{id:'deadlift2',name:'デッドリフト（体重以上）',dose:'3回 × 5',icon:'🏋️',key:true,form:['体重越えに挑戦'],altBack:{id:'hex_dl3',name:'ヘックスバーデッドリフト',dose:'3回 × 5',icon:'🏋️',key:true,form:['腰に優しいフォームで高重量']}},{id:'push_press',name:'プッシュプレス',dose:'5回 × 4',icon:'💪',form:['脚の弾みで頭上に押し上げる']},],}},
+      {num:4,title:'バスケのコンタクトへ',focus:'コンタクトで主導権を取る',milestone:'試合でポジション争いに負けなくなった',
+       sessions:{body:[{id:'push_sp',name:'スピードプッシュアップ',dose:'20回 × 4',icon:'💪',key:true,form:['最大スピードで']},{id:'core_rot',name:'回旋メディシン投げ（重い荷物で代替）',dose:'10回 × 3',icon:'⚡',form:['回旋で横に投げる動作']},],light:[{id:'push_sp2',name:'スピードプッシュアップ',dose:'20回 × 4',icon:'💪',key:true,form:['最大スピードで']},{id:'bnd_press',name:'バンドプレス',dose:'15回 × 3',icon:'🏋️',form:['バンドで押す動作']},],gym:[{id:'bench3',name:'ベンチプレス（85%1RM）',dose:'5回 × 5',icon:'🏋️',key:true,form:['高重量でコントロール']},{id:'med_throw',name:'メディシンボールウォールスロー',dose:'10回 × 4',icon:'⚡',form:['壁に向かって爆発的に投げる']},],perf:[{id:'bench4',name:'ベンチプレス（体重以上）',dose:'3回 × 5',icon:'🏋️',key:true,form:['最大強度']},{id:'band_over',name:'バンドオーバープレス',dose:'12回 × 4',icon:'⚡',form:['バンドで頭上に素早く押す']},],}},
+    ]
+  },
+
+  endurance:{
+    name:'試合後半のスタミナ', icon:'🔥', color:'#34d399',
+    tagline:'4Qでも1Qと同じキレで動き続ける',
+    peak:'延長戦でもキレが落ちない心肺と筋持久力',
+    abilityQ:'試合中のスタミナ、今はどのくらい？',
+    abilitySub:'正直に選ぶと最適なプランになります',
+    abilityOpts:[
+      {val:'low',  icon:'🔥', label:'3Qになるとかなりきつい',   desc:'後半に足が止まることが多い'},
+      {val:'mid',  icon:'🔥', label:'4Q後半がしんどい',        desc:'試合終盤に落ちていく感覚がある'},
+      {val:'high', icon:'🔥', label:'スタミナはあるがキレが落ちる', desc:'動き続けられるが質が下がる'},
+      {val:'elite',icon:'🔥', label:'体力はチームでも上位',    desc:'ほぼ落ちない・さらに上を目指したい'},
+    ],
+    abilityLabel:{low:'3Qからきつい',mid:'4Q後半がしんどい',high:'キレが落ちる',elite:'チームで体力上位'},
+    stages:[
+      {num:1,title:'有酸素ベースを作る',focus:'20分ジョギング連続',milestone:'心拍を上げながら20分走り続けられる',
+       sessions:{body:[{id:'jog',name:'ジョギング（または縄跳び）',dose:'20分',icon:'🏃',key:true,form:['会話できるペースを維持','息が上がっても止まらない']},{id:'burpee',name:'バーピー',dose:'10回 × 3',icon:'💥',form:['止まらずテンポよく']},],light:[{id:'jog',name:'ジョギング',dose:'20分',icon:'🏃',key:true,form:['一定ペースで']},{id:'burpee',name:'バーピー',dose:'10回 × 3',icon:'💥',form:['テンポよく']},],gym:[{id:'row_mach',name:'ローイングマシン',dose:'20分（中強度）',icon:'🚣',key:true,form:['ペースを一定に保つ']},{id:'burpee',name:'バーピー',dose:'12回 × 3',icon:'💥',form:['テンポよく']},],perf:[{id:'assault',name:'アサルトバイク（中強度）',dose:'20分',icon:'🚴',key:true,form:['一定ペースで・最後まで保つ']},{id:'row2',name:'ローイング（中強度）',dose:'2000m',icon:'🚣',form:['一定ペースで漕ぎ切る']},],}},
+      {num:2,title:'インターバルで強度を上げる',focus:'1分全力+1分回復 × 8本',milestone:'インターバル8本を最後まで同じペースでこなせる',
+       sessions:{body:[{id:'hiit',name:'インターバルスプリント',dose:'1分全力+1分歩き × 8',icon:'⚡',key:true,form:['全力区間は本当に全力','回復区間はゆっくり歩く']},{id:'mnt_c',name:'マウンテンクライマー',dose:'30秒 × 4',icon:'🏔️',form:['高速でひざを交互に引く']},],light:[{id:'hiit',name:'インターバルスプリント',dose:'1分全力+1分歩き × 8',icon:'⚡',key:true,form:['全力で']},{id:'jmpsq2',name:'ジャンプスクワット',dose:'15回 × 3',icon:'💥',form:['ジャンプで心拍を上げる']},],gym:[{id:'assault2',name:'アサルトバイクHIIT',dose:'20秒全力+40秒回復 × 10',icon:'⚡',key:true,form:['20秒は限界まで漕ぐ']},{id:'sled4',name:'スレッドプッシュ（コンディショニング）',dose:'20m × 8',icon:'💥',form:['ゆっくりでいいので続ける']},],perf:[{id:'assault3',name:'アサルトバイクHIIT（高強度）',dose:'15秒全力+45秒回復 × 12',icon:'⚡',key:true,form:['15秒は死ぬ気で漕ぐ']},{id:'sled_cond2',name:'スレッドコンディショニング',dose:'20m × 10',icon:'💥',form:['最後まで崩れない']},],}},
+      {num:3,title:'バスケ動作の持久力',focus:'シャトルラン5分連続',milestone:'フルコートシャトルを5分間落ちずにこなせる',
+       sessions:{body:[{id:'shuttle',name:'シャトルラン（コート幅往復）',dose:'5分間連続',icon:'🏀',key:true,form:['タッチアンドゴー','ペースを落としても止まらない']},{id:'drib_cond',name:'ドリブル+ダッシュ',dose:'3分 × 3',icon:'🏀',form:['ドリブルしながらコートを動く']},],light:[{id:'shuttle',name:'シャトルラン',dose:'5分連続',icon:'🏀',key:true,form:['ペースを保つ']},{id:'core_circ',name:'コアサーキット',dose:'3種目 × 3周',icon:'🔥',form:['プランク・バーピー・ハイニーを連続']},],gym:[{id:'shuttle',name:'シャトルラン',dose:'5分連続',icon:'🏀',key:true,form:['ペースを保つ']},{id:'bar_comp',name:'バーベルコンプレックス',dose:'6種目 × 4R',icon:'💥',form:['バーを置かずに6種目連続']},],perf:[{id:'shuttle',name:'シャトルラン',dose:'5分連続',icon:'🏀',key:true,form:['ペースを保つ']},{id:'assault4',name:'アサルトバイク→シャトル連続',dose:'3ラウンド',icon:'⚡',form:['1分バイク→3分シャトルを繰り返す']},],}},
+      {num:4,title:'試合後半でも全力',focus:'4Q相当を全力でこなす',milestone:'試合終了後も脚が動いている実感',
+       sessions:{body:[{id:'game_sim',name:'ゲームシミュレーション体力練習',dose:'20分',icon:'🏀',key:true,form:['スプリント・バックペダル・スライドを交互']},{id:'core_circ2',name:'コアサーキット',dose:'4R',icon:'🔥',form:['プランク45秒・サイドプランク・バーピー10回']},],light:[{id:'game_sim',name:'ゲームシミュレーション',dose:'20分',icon:'🏀',key:true,form:['試合動作を模して動く']},{id:'tabata',name:'タバタ式ジャンプスクワット',dose:'8セット(20秒+10秒)',icon:'⚡',form:['最初から最後まで全力']},],gym:[{id:'game_sim',name:'ゲームシミュレーション',dose:'20分',icon:'🏀',key:true,form:['試合動作を模して動く']},{id:'met_comp',name:'メタボリックコンプレックス',dose:'5R',icon:'💥',form:['スクワット・ジャンプ・プッシュアップ・バーピー連続']},],perf:[{id:'game_sim',name:'ゲームシミュレーション',dose:'20分',icon:'🏀',key:true,form:['試合動作を模して動く']},{id:'assault5',name:'アサルトバイク（10分全力維持）',dose:'10分',icon:'⚡',form:['落ちないペースを維持']},{id:'sled5b',name:'スレッドプッシュ（タバタ）',dose:'10秒全力+20秒休み × 8',icon:'💥',form:['最短距離を全力で']},],}},
+    ]
+  },
+};
+
+const RECOVERY_EX = [
+  {id:'foam',name:'フォームローリング（太もも・臀筋・脹脛）',dose:'各30秒',icon:'🫁',form:['圧痛点は10秒止まる','ゆっくり転がす']},
+  {id:'hip_str',name:'ヒップフレクサーストレッチ',dose:'左右各45秒 × 2',icon:'🧘',form:['膝をついて前足を出す','骨盤を前に押し出す']},
+  {id:'calf_str',name:'カーフ＆アキレスストレッチ',dose:'左右各45秒',icon:'🦶',form:['壁に手をつき後ろ足を伸ばす']},
+];
+
+const CHALLENGE_MSG = {
+  // legacy / fallback
+  lost:    '🧭 まずは動きをマスターすることが最優先。重量や回数より正しいフォームを身につける期間です。',
+  plateau: '📊 毎セッションで重量・回数を0.5〜1kg/1回ずつ増やす意識が停滞打破の鍵です。',
+  balance: '⚖️ バスケがある日は回復モード。ない日だけトレーニング。この徹底だけで差が出ます。',
+  injury:  '🏥 痛みを感じたら即中止。代替種目（★マーク）を使って安全に続けることが最重要です。',
+  // jump
+  finishing:    '🏆 フィニッシュは「片足踏み切りの安定と空中での体軸制御」が鍵。まずスタビリティを土台に作り、そこにボールハンドリングを乗せていきます。',
+  rebound_lose: '🏀 ジャンプはタイミングが命。リバウンド競りは「先に動き出す爆発力」で体格差を超えます。踏み切り速度と滞空時間を最大化するトレーニングで勝率を上げます。',
+  block_low:    '✋ ブロックの高さは踏み切り速度で決まります。筋力より「助走→踏み切りの一瞬の加速」を優先し、股関節の爆発的伸展を鍛えます。',
+  takeoff_weak: '⚡ 踏み切りは「股関節の伸展スピード」が全て。筋力を上げる前に踏み切りの技術と体重移動を身につけ、そこにパワーを乗せていきます。',
+  // speed
+  drive_beat: '🚀 ドライブの一歩目は「重心の先出し」で9割決まります。筋力より姿勢と体重移動を先に整え、そこに脚力を加えることで爆発的なスタートが生まれます。',
+  fastbreak:  '🏃 速攻の走り負けは加速力とトップスピードの両方が原因。スプリントフォームと股関節の伸展パワーを鍛えて、コートを最速で駆け抜けます。',
+  shaken:     '🛡️ 振り切られるのは反応の遅れと切り替えの遅さ。低い構えからの初動反応と、減速→再加速の脚力を鍛えて食らいつけるDFを作ります。',
+  // agility
+  of_cut:     '🏀 OFの切り返しは「上体の重心移動とフェイク」が先。体重移動と地面への反発力が身についてから、ウェイトで爆発力を加速します。',
+  df_follow:  '🛡️ DFは「構えの低さと重心位置」が全て。まず正しいステップと姿勢を体に染み込ませ、それから脚力で対応力を広げます。',
+  change_dir: '↔️ 方向転換は「止まる技術」が先。減速→切り替えしの体重移動をマスターしてから、爆発力でスピードを乗せます。',
+  // strength
+  no_exp:    '🌱 フィジカルの土台から丁寧に作ります。最初は自重と基本フォームの習得が最優先。正しい動き方を体に染み込ませてから重量を積みます。',
+  no_change: '📊 体が変わらないのは「刺激の慣れ」が原因。重量・回数・種目のどれかを毎週1つ更新することで停滞を打破します。',
+  fatigue:   '⚖️ バスケがある日は回復モード。ない日だけ追い込む。このメリハリが最速でフィジカルを変えます。',
+  pain:      '🏥 関節への負担を最小化しながら強さを積み上げます。代替種目（★マーク）を活用し、安全に継続することが最重要です。',
+  // endurance
+  legs_heavy: '🦵 後半の足の重さは乳酸処理能力の不足が主因。インターバルトレーニングで乳酸閾値を引き上げ、後半も動ける体を作ります。',
+  recovery:   '⏱️ 回復速度はHIITと有酸素の組み合わせで改善します。心肺機能と筋肉のエネルギー補充システムを同時に鍛えます。',
+  defense:    '🛡️ ハードDFの持続は体幹の粘り強さと脚の筋持久力が鍵。低い姿勢を保ち続けるための専用トレーニングを取り入れます。',
+};
+
+const CONTACT_MSG = {
+  rebound: '力=スピード×重さ。ボックスアウトは体重より「腰の低さとヒット直前の爆発力」で決まります。脚の押し込みとタイミングを鍛えます。',
+  loose:   '力=スピード×重さ。ルーズボールは反応速度とコアの瞬発力が全て。一歩目の出力を最大化します。',
+  defense: '力=スピード×重さ。動かされないのは「腰を落とし続ける筋力」。脚力と体幹アンカーで壁を作ります。',
+  post:    '力=スピード×重さ。ポストの圧力は脚→腰→上半身の連動から生まれます。全身の力を一点に集める鍛え方をします。',
+  drive:   '力=スピード×重さ。接触の瞬間に重心を落として突っ込む。タイミングと体重移動で体格差を突破します。',
+};
+
+const OB_STEPS_BASE = [
+  {
+    id:'goal', stepLabel:'ゴール',
+    q:'バスケで一番伸ばしたいのは？', sub:'メインゴールを1つ選んでください。あとで変えられます',
+    opts:[
+      {val:'jump',      icon:'⚡',  label:'ジャンプ力',          desc:'リバウンド・ブロックで高さを出したい'},
+      {val:'speed',     icon:'💨',  label:'スピード・一歩目',    desc:'ドライブの一歩目で相手を置き去りにしたい'},
+      {val:'agility',   icon:'⚡',  label:'俊敏性・切り返し',    desc:'方向転換でディフェンスを翻弄したい'},
+      {val:'strength',  icon:'🛡️', label:'フィジカルの強さ',    desc:'当たり負けしないボディを作りたい'},
+      {val:'endurance', icon:'🔥',  label:'後半のスタミナ',      desc:'4Qでもガス欠しないスタミナが欲しい'},
+    ]
+  },
+  {
+    id:'bball_freq', stepLabel:'練習頻度',
+    q:'バスケの練習・試合は週何日？', sub:'筋トレとのバランスを自動調整します',
+    opts:[
+      {val:1, icon:'📅', label:'週1日',    desc:'週末のみ'},
+      {val:2, icon:'📅', label:'週2〜3日', desc:'チーム練習メイン'},
+      {val:3, icon:'📅', label:'週4〜5日', desc:'ほぼ毎日'},
+      {val:4, icon:'📅', label:'週6〜7日', desc:'部活・シーズン中'},
+    ]
+  },
+  {
+    id:'weight_freq', stepLabel:'ウェイト頻度',
+    q:'週に何回ウェイトトレーニングできますか？', sub:'バスケ練習とは別で確保できるトレーニング回数',
+    opts:[
+      {val:1, icon:'📅', label:'週1回',    desc:'時間が限られている'},
+      {val:2, icon:'📅', label:'週2回',    desc:'バランス型（多くの人に推奨）'},
+      {val:3, icon:'📅', label:'週3回',    desc:'しっかり取り組める'},
+      {val:4, icon:'📅', label:'週4回以上', desc:'トレーニング最優先'},
+    ]
+  },
+  {
+    id:'time', stepLabel:'時間',
+    q:'1回のトレーニングに使える時間は？', sub:'バスケ練習とは別の時間',
+    opts:[
+      {val:15, icon:'⏱', label:'15分以内',  desc:'サクッと追加したい'},
+      {val:30, icon:'⏱', label:'30分前後',  desc:'バランス型'},
+      {val:45, icon:'⏱', label:'45分以上',  desc:'しっかり取り組む'},
+    ]
+  },
+  {
+    id:'equipment', stepLabel:'環境',
+    q:'使えるトレーニング環境は？', sub:'最適な種目に調整します。なくても大丈夫',
+    opts:[
+      {val:'body', icon:'🏠', label:'自宅・自重のみ',      desc:'マット程度・道具なし'},
+      {val:'light',icon:'🎽', label:'自宅器具あり',        desc:'ダンベル・バンド・ケトルベルなど'},
+      {val:'gym',  icon:'🏋️', label:'一般ジム',           desc:'バーベル・マシン・フリーウェイト'},
+      {val:'perf', icon:'⚡', label:'アスリート向けジム',   desc:'ヘックスバー・スレッド・プライオボックス'},
+    ]
+  },
+  {
+    id:'injury', stepLabel:'ケガ確認',
+    q:'今、体に痛みや違和感はある？', sub:'複数選択OK。該当種目を代替に自動切り替えします',
+    multiSelect:true,
+    opts:[
+      {val:'none',     icon:'✅', label:'特に痛みや違和感なし', desc:'全種目に取り組める状態'},
+      {val:'knee',     icon:'🦵', label:'膝に痛み・違和感',     desc:'ジャンプやしゃがみが不安'},
+      {val:'back',     icon:'🪑', label:'腰に痛み・違和感',     desc:'重いものを持つと不安'},
+      {val:'ankle',    icon:'🦶', label:'足首・かかとに違和感', desc:'着地・ジャンプが不安'},
+      {val:'shoulder', icon:'🙋', label:'肩に痛み・違和感',     desc:'腕を上げる動作・プッシュ系が不安'},
+    ]
+  },
+  {
+    id:'height', stepLabel:'身長',
+    q:'身長を教えてください', sub:'ジャンプ目標・立ちリーチの計算に使います',
+    opts:[
+      {val:160, icon:'📏', label:'160cm以下', desc:'立ちリーチ約213cm'},
+      {val:165, icon:'📏', label:'〜165cm',   desc:'立ちリーチ約219cm'},
+      {val:170, icon:'📏', label:'〜170cm',   desc:'立ちリーチ約226cm'},
+      {val:175, icon:'📏', label:'〜175cm',   desc:'立ちリーチ約233cm'},
+      {val:180, icon:'📏', label:'〜180cm',   desc:'立ちリーチ約239cm'},
+      {val:185, icon:'📏', label:'〜185cm',   desc:'立ちリーチ約246cm'},
+      {val:190, icon:'📏', label:'〜190cm',   desc:'立ちリーチ約253cm'},
+      {val:195, icon:'📏', label:'〜195cm',   desc:'立ちリーチ約259cm'},
+      {val:200, icon:'📏', label:'200cm以上', desc:'立ちリーチ約266cm'},
+    ]
+  },
+  null, // Step 7 = goal-specific ability (dynamic)
+  null, // Step 8 = goal-specific fitness / contact diagnostic (dynamic)
+  null, // Step 9 = goal-specific challenge (dynamic)
+];
+
+function buildAbilityStep(goal){
+  const g = GOALS[goal];
+  if(!g) return null;
+  return { id:'current_ability', stepLabel:'現状確認', q:g.abilityQ, sub:g.abilitySub, opts:g.abilityOpts };
+}
+
+function buildFitnessStep(goal){
+  if(goal==='jump') return {
+    id:'fitness', stepLabel:'脚力レベル',
+    q:'スクワットの現状は？', sub:'ジャンプ力の土台となる脚力を教えてください。自重の2倍がアスリートのトップライン',
+    opts:[
+      {val:'rookie',       icon:'🌱', label:'自重スクワット20回がきつい',        desc:'まだ基礎段階。体力づくりから始める'},
+      {val:'beginner',     icon:'🌿', label:'自重スクワット20回は余裕',          desc:'バーベルスクワットは未経験または軽い'},
+      {val:'intermediate', icon:'🌳', label:'バーベルスクワット 自重×0.5〜0.8', desc:'ジムで定期的にスクワットをしている'},
+      {val:'advanced',     icon:'🏋️', label:'バーベルスクワット 自重×1.0〜1.5', desc:'体重と同等以上のスクワットができる'},
+      {val:'elite',        icon:'🥇', label:'バーベルスクワット 自重×1.5〜2.0', desc:'自重の2倍がアスリートのトップライン'},
+    ]
+  };
+  if(goal==='strength') return {
+    id:'fitness', stepLabel:'コンタクト診断',
+    q:'一番負けていると感じるシチュエーションは？', sub:'当てはまるものを1つ選んでください',
+    opts:[
+      {val:'rebound', icon:'🏀', label:'リバウンドの押し合いに負ける',     desc:'ポジション争いで体が負ける'},
+      {val:'loose',   icon:'💨', label:'ルーズボールに体で負ける',         desc:'飛び込みや競り合いで遅れる'},
+      {val:'defense', icon:'🛡️', label:'ディフェンスで押し込まれてしまう', desc:'相手に体で押されてポジションを失う'},
+      {val:'post',    icon:'⬇️', label:'ポストで相手を押し込みたい',       desc:'低いポジションで相手を動かしたい'},
+      {val:'drive',   icon:'⚡', label:'ドライブで相手をこじ開けたい',     desc:'接触しても突破できるドライブをしたい'},
+    ],
+    note:'体重差が15kg以上ある場合は、まず増量・体重増加プランが最優先です'
+  };
+  return {
+    id:'fitness', stepLabel:'体力レベル',
+    q:'今の体力・トレーニングベースは？', sub:'正直に選ぶほど合ったプランになります',
+    opts:[
+      {val:'rookie',       icon:'🌱', label:'ほぼ未経験',                   desc:'腕立て10回がきつい程度'},
+      {val:'beginner',     icon:'🌿', label:'自重トレーニング経験あり',       desc:'週1〜2回軽く動かしている'},
+      {val:'intermediate', icon:'🌳', label:'ジムで定期的に重量を上げている', desc:'スクワット・デッドリフトを知っている'},
+      {val:'advanced',     icon:'🏋️', label:'競技者レベルのウェイトトレーニング', desc:'体重以上のスクワット・週3〜4回'},
+      {val:'elite',        icon:'🥇', label:'アスリート向けパワートレーニング経験', desc:'クリーン・スナッチ等のオリンピックリフト'},
+    ]
+  };
+}
+
+function buildChallengeStep(goal){
+  const steps = {
+    jump: {
+      id:'challenge', stepLabel:'悩み',
+      q:'ジャンプの課題、当てはまるものを選んでください', sub:'複数選択OK。選んだ項目のトレーニングルートが追加されます',
+      multiSelect:true,
+      opts:[
+        {val:'rebound_lose', icon:'🏀', label:'リバウンドで跳び負ける',          desc:'タイミング・ポジション・高さで負ける'},
+        {val:'block_low',    icon:'✋', label:'ブロックが決まらない',            desc:'手が届かない・タイミングが合わない'},
+        {val:'finishing',    icon:'🏆', label:'フィニッシュが決められない',      desc:'レイアップ・ダンク・空中で崩れる'},
+        {val:'plateau',      icon:'📊', label:'やっているが跳躍が伸び悩んでいる', desc:'続けているが高さが上がらなくなった'},
+      ]
+    },
+    speed: {
+      id:'challenge', stepLabel:'悩み',
+      q:'スピードの課題、当てはまるものを選んでください', sub:'複数選択OK。選んだ場面に合わせて調整します',
+      multiSelect:true,
+      opts:[
+        {val:'drive_beat', icon:'🚀', label:'ドライブで抜けない',              desc:'一歩目で相手を置き去りにできない'},
+        {val:'fastbreak',  icon:'🏃', label:'速攻で走り負ける',                desc:'走り出し・トップスピードで負ける'},
+        {val:'shaken',     icon:'🛡️', label:'マークマンに振り切られる',        desc:'DFで相手の動きに反応しきれない'},
+        {val:'plateau',    icon:'📊', label:'やっているが伸び悩んでいる',      desc:'トレーニングしているが速くならない'},
+      ]
+    },
+    agility: {
+      id:'challenge', stepLabel:'悩み',
+      q:'俊敏性の課題、当てはまるものを選んでください', sub:'複数選択OK。選んだ場面に合わせて調整します',
+      multiSelect:true,
+      opts:[
+        {val:'of_cut',     icon:'🏀', label:'OFで左右に抜けない',             desc:'切り返しで相手に読まれてしまう'},
+        {val:'df_follow',  icon:'🛡️', label:'DFでついていけない',             desc:'相手の動きに体がついていかない'},
+        {val:'change_dir', icon:'↔️', label:'方向転換が遅い',                 desc:'止まって切り替えす動作が鈍い'},
+        {val:'plateau',    icon:'📊', label:'やっているが伸び悩んでいる',     desc:'アジリティ練習しているが変わらない'},
+      ]
+    },
+    strength: {
+      id:'challenge', stepLabel:'悩み',
+      q:'フィジカル強化の課題、当てはまるものを選んでください', sub:'複数選択OK。選んだ状況に合わせて調整します',
+      multiSelect:true,
+      opts:[
+        {val:'no_exp',    icon:'🌱', label:'フィジカルトレーニングが初めて',   desc:'何から始めればいいかわからない'},
+        {val:'no_change', icon:'📊', label:'やっているが体が変わらない',       desc:'続けているが強くなっている実感がない'},
+        {val:'fatigue',   icon:'⚖️', label:'疲労バランスが難しい',            desc:'バスケと両立すると疲れが抜けない'},
+        {val:'pain',      icon:'🏥', label:'関節・ケガが心配',                desc:'痛みが出るのが怖くて追い込めない'},
+      ]
+    },
+    endurance: {
+      id:'challenge', stepLabel:'悩み',
+      q:'スタミナの課題、当てはまるものを選んでください', sub:'複数選択OK。選んだ場面に合わせて調整します',
+      multiSelect:true,
+      opts:[
+        {val:'legs_heavy', icon:'🦵', label:'3Qから足が重くなる',              desc:'後半に踏ん張りがきかなくなる'},
+        {val:'recovery',   icon:'⏱️', label:'インターバル回復が遅い',          desc:'ハードなプレー後の息の整いが遅い'},
+        {val:'defense',    icon:'🛡️', label:'ハードDFが続かない',             desc:'激しいDFをずっと維持できない'},
+        {val:'plateau',    icon:'📊', label:'やっているが伸び悩んでいる',     desc:'有酸素しているがスタミナが上がらない'},
+      ]
+    },
+  };
+  return steps[goal] || {
+    id:'challenge', stepLabel:'悩み',
+    q:'今のトレーニングの状況は？', sub:'一番近いものを選んでください',
+    opts:[
+      {val:'lost',    icon:'🧭', label:'何から始めればいいかわからない', desc:'体系的に学びたい・未経験'},
+      {val:'plateau', icon:'📊', label:'やっているが伸び悩んでいる',   desc:'続けているが成長を感じにくくなった'},
+      {val:'balance', icon:'⚖️', label:'バスケと両立がうまくいかない', desc:'疲労が残る・時間が足りない'},
+      {val:'injury',  icon:'🏥', label:'ケガが心配または過去にある',   desc:'安全にトレーニングしたい'},
+    ]
+  };
+}
+
+function getStepAt(i){
+  if(i===7) return buildAbilityStep(obAnswers.goal);
+  if(i===8) return buildFitnessStep(obAnswers.goal);
+  if(i===9) return buildChallengeStep(obAnswers.goal);
+  return OB_STEPS_BASE[i];
+}
+
+const OB_TOTAL = OB_STEPS_BASE.length; // 9
+
+/* ================================================================
+   STORAGE
+================================================================ */
+const KEY='hoopStr_v3';
+let DB = loadDB();
+function loadDB(){ try{ return JSON.parse(localStorage.getItem(KEY))||null; }catch(e){ return null; } }
+function saveDB(){ localStorage.setItem(KEY,JSON.stringify(DB)); }
+function today(){ return new Date().toISOString().slice(0,10); }
+
+/* ================================================================
+   ONBOARDING
+================================================================ */
+let obStep=0, obAnswers={}, obAutoTimer=null;
+
+function renderOB(){
+  const step = getStepAt(obStep);
+  if(!step){ obStep++; renderOB(); return; }
+
+  let prog='';
+  for(let i=0;i<OB_TOTAL;i++){
+    if(i===1||i===7) prog+=`<span class="seg-div"></span>`;
+    const done=i<=obStep?'done':'';
+    const seg=i===0?'':i<=6?'seg-data':'seg-detail';
+    prog+=`<span class="${[done,seg].filter(Boolean).join(' ')}"></span>`;
+  }
+  $('#obProg').innerHTML=prog;
+  $('#obStepLabel').textContent=step.stepLabel?`${step.stepLabel} (${obStep+1}/${OB_TOTAL})`:'';
+
+
+  const isMulti = !!step.multiSelect;
+  const selArr = isMulti ? (Array.isArray(obAnswers[step.id])?obAnswers[step.id]:[]) : [];
+  const cards = step.opts.map(o=>{
+    const isSel = isMulti ? selArr.includes(o.val) : obAnswers[step.id]===o.val;
+    const check = isMulti ? `<div class="ob-check${isSel?' on':''}"></div>` : '';
+    return `<div class="ob-card ${isSel?'sel':''}" data-step="${step.id}" data-val="${o.val}">
+      <div class="ob-icon">${o.icon}</div>
+      <div style="flex:1"><div class="ob-label">${o.label}</div><div class="ob-desc">${o.desc}</div></div>
+      ${check}
+    </div>`;
+  }).join('');
+  $('#obBody').innerHTML=`<div class="ob-q">${step.q}</div><div class="ob-sub">${step.sub}</div><div class="ob-cards">${cards}</div>${step.note?`<div class="ob-note">📌 ${step.note}</div>`:''}`;
+
+  const hasSel = isMulti
+    ? (Array.isArray(obAnswers[step.id]) && obAnswers[step.id].length>0)
+    : obAnswers[step.id]!==undefined;
+  const isLast = obStep===OB_TOTAL-1;
+
+  // Multi-select: show Next button. Single-select: back button only
+  $('#obFoot').innerHTML=`
+    ${isMulti ? `<button class="ob-next${hasSel?' on':''}" id="obNext">${isLast?'プランを見る →':'次へ →'}</button>` : ''}
+    ${obStep>0?'<button class="ob-back" id="obBack">← 戻る</button>':''}`;
+
+  if(isMulti){ const nx=$('#obNext'); if(nx) nx.onclick=()=>{ if(!hasSel)return; isLast?showReveal():(obStep++,renderOB()); }; }
+  const bk=$('#obBack'); if(bk) bk.onclick=()=>{ if(obAutoTimer){clearTimeout(obAutoTimer);obAutoTimer=null;} obStep--; renderOB(); };
+
+  $('#obBody').querySelectorAll('.ob-card').forEach(card=>{
+    card.onclick=()=>{
+      if(obAutoTimer){clearTimeout(obAutoTimer);obAutoTimer=null;}
+      let v=card.dataset.val;
+      if(v!==''&&!isNaN(+v)) v=+v;
+      if(isMulti){
+        let arr=Array.isArray(obAnswers[card.dataset.step])?[...obAnswers[card.dataset.step]]:[];
+        if(v==='none'){ arr=arr.includes('none')?[]:['none']; }
+        else{ arr=arr.filter(x=>x!=='none'); arr=arr.includes(v)?arr.filter(x=>x!==v):[...arr,v]; }
+        obAnswers[card.dataset.step]=arr.length?arr:undefined;
+      } else {
+        obAnswers[card.dataset.step]=v;
+      }
+      renderOB();
+      if(!isMulti){
+        obAutoTimer=setTimeout(()=>{ obAutoTimer=null; isLast?showReveal():(obStep++,renderOB()); },350);
+      }
+    };
+  });
+}
+
+function showReveal(){
+  const goal=GOALS[obAnswers.goal];
+  const p=obAnswers;
+  const freqMap={1:'週1日',2:'週2〜3日',3:'週4〜5日',4:'週6〜7日'};
+  const eqMap={body:'自重のみ',light:'自宅器具',gym:'一般ジム',perf:'アスリートジム'};
+  const abilityLabel = goal.abilityLabel[p.current_ability]||'';
+
+  const ctRow = `<div class="current-target">
+    <div class="ct-label">あなたの現在地 → 目標</div>
+    <div class="ct-row">
+      <div class="ct-box"><div class="ct-val">${abilityLabel}</div><div class="ct-t">今</div></div>
+      <div class="ct-arrow">→</div>
+      <div class="ct-box" style="border:1px solid var(--accent)"><div class="ct-val" style="color:var(--accent)">${goal.peak.slice(0,12)}…</div><div class="ct-t">目標</div></div>
+    </div>
+  </div>`;
+
+  const CHAL_LABEL = {
+    lost:'何から始めればいいかわからない', plateau:'伸び悩んでいる', balance:'バスケとの両立', injury:'ケガが心配',
+    finishing:'フィニッシュが決められない', rebound_lose:'リバウンドで跳び負ける', block_low:'ブロックが決まらない', takeoff_weak:'踏み切りの爆発力が弱い',
+    drive_beat:'ドライブで抜けない', fastbreak:'速攻で走り負ける', shaken:'マークマンに振り切られる',
+    of_cut:'OFで左右に抜けない', df_follow:'DFでついていけない', change_dir:'方向転換が遅い',
+    no_exp:'フィジカルトレーニングが初めて', no_change:'体が変わらない', fatigue:'疲労バランスが難しい', pain:'関節・ケガが心配',
+    legs_heavy:'後半に足が重くなる', recovery:'インターバル回復が遅い', defense:'ハードDFが続かない',
+  };
+  const chalArr = Array.isArray(p.challenge)?p.challenge:(p.challenge?[p.challenge]:[]);
+  const chalLabels = chalArr.map(c=>CHAL_LABEL[c]).filter(Boolean).join('・');
+  const chalMsgs = chalArr.map(c=>CHALLENGE_MSG[c]).filter(Boolean).join('<br>');
+  const challengeNote = chalArr.length ? `<div class="challenge-note"><b>あなたの課題：${chalLabels}</b><br>${chalMsgs}</div>` : '';
+
+  const contactNote = p.goal==='strength' && CONTACT_MSG[p.fitness] ?
+    `<div class="challenge-note" style="border-color:rgba(167,139,250,.3);background:rgba(167,139,250,.06)"><b style="color:var(--purple)">アプローチ：${
+      {rebound:'リバウンド強化',loose:'ルーズボール強化',defense:'ディフェンス安定',post:'ポスト強化',drive:'ドライブ突破'}[p.fitness]||''
+    }</b><br>${CONTACT_MSG[p.fitness]}</div>` : '';
+
+  const injArrR=Array.isArray(p.injury)?p.injury:[p.injury||'none'];
+  const hasInjR=injArrR.some(x=>x&&x!=='none');
+  const injuryNote = hasInjR ? `<div class="challenge-note" style="border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.06)">
+    <b style="color:var(--yellow)">⚠️ 怪我配慮モード ON</b><br>痛みのある部位に負担がかかる種目は自動で代替種目に切り替えます</div>` : '';
+
+  const stagesHTML = goal.stages.map((s,i)=>i===0
+    ? `<div class="reveal-stage current"><div class="rs-label">STAGE 1 — 今すぐ取り組む</div><div class="rs-title">${s.title}</div><div class="rs-focus">${s.focus}</div></div>`
+    : `<div class="reveal-stage locked"><div class="rs-label">STAGE ${s.num}</div><div class="rs-title">${s.title}</div><div class="rs-lock">🔒 Stage ${s.num-1}クリアで解放</div></div>`
+  ).join('');
+
+  const teaseHTML=`
+    ${p.goal==='jump'?`<div class="tease-item"><span class="ti-icon">🎥</span><div><div class="ti-name">ジャンプフォームガイド</div><div class="ti-lock">踏み切り・着地・腕の使い方の完全解説</div></div><span class="lock-badge">🔒 Stage 1</span></div>`:''}
+    <div class="tease-item"><span class="ti-icon">🥗</span><div><div class="ti-name">栄養ガイド</div><div class="ti-lock">筋トレ効果を最大化する食事戦略</div></div><span class="lock-badge">🔒 Stage 2</span></div>
+    <div class="tease-item"><span class="ti-icon">😴</span><div><div class="ti-name">リカバリー&睡眠プロトコル</div><div class="ti-lock">超回復を最大化する方法</div></div><span class="lock-badge">🔒 Stage 3</span></div>
+    <div class="tease-item"><span class="ti-icon">🧠</span><div><div class="ti-name">メンタル・集中力トレーニング</div><div class="ti-lock">本番で力を出しきる</div></div><span class="lock-badge">🔒 Stage 4</span></div>`;
+
+  $('#obBody').innerHTML=`<div class="ob-reveal">
+    <div class="reveal-badge">${goal.icon} ${goal.name}ルート</div>
+    <div class="reveal-h">${goal.tagline}</div>
+    <div class="reveal-meta">${freqMap[p.bball_freq]} / ${eqMap[p.equipment]} / ${p.time}分</div>
+    ${ctRow}${contactNote}${challengeNote}${injuryNote}
+    <div class="reveal-path"><div class="rp-title">あなたの4ステージ</div>${stagesHTML}</div>
+    <div class="tease-sep">🔒 この先に見える山</div>${teaseHTML}
+  </div>`;
+
+  $('#obFoot').innerHTML=`<button class="ob-next on" id="obStart">今日からはじめる →</button>
+    <button class="ob-back" id="obRevBack">← 戻って修正する</button>`;
+  $('#obStart').onclick=()=>{
+    DB={profile:obAnswers,currentStage:0,stagesDone:[],completedNodes:[],checkedToday:{},gameDay:false,lastGameDay:''};
+    saveDB(); startApp();
+  };
+  $('#obRevBack').onclick=()=>{ obStep=OB_TOTAL-1; renderOB(); };
+}
+
+/* ================================================================
+   APP
+================================================================ */
+function startApp(){
+  $('#obWrap').classList.add('gone');
+  $('#appWrap').classList.add('on');
+  renderStats(); renderToday(); renderPath(); renderProfile();
+}
+
+function getGoal(){ return GOALS[DB.profile.goal]; }
+function getStage(){ return getGoal().stages[DB.currentStage]; }
+
+function sessionExercises(){
+  const stage=getStage();
+  const eq=DB.profile.equipment;
+  const injArr=Array.isArray(DB.profile.injury)?DB.profile.injury:[DB.profile.injury||'none'];
+  const hasInj=injArr.some(x=>x&&x!=='none');
+  let exList=stage.sessions[eq]||stage.sessions.gym||stage.sessions.body;
+
+  if(hasInj){
+    exList=exList.map(ex=>{
+      if(injArr.includes('knee')&&ex.altKnee)     return {...ex.altKnee,_alt:true};
+      if(injArr.includes('back')&&ex.altBack)     return {...ex.altBack,_alt:true};
+      if(injArr.includes('ankle')&&ex.altAnkle)   return {...ex.altAnkle,_alt:true};
+      if(injArr.includes('shoulder')&&ex.altShoulder) return {...ex.altShoulder,_alt:true};
+      return ex;
+    });
+  }
+  const count=DB.profile.time<=15?2:DB.profile.time<=30?3:exList.length;
+  return exList.slice(0,count);
+}
+
+let gameDayMode=false;
+
+function renderToday(){
+  gameDayMode=(DB.lastGameDay===today()&&DB.gameDay);
+  $('#gdSwitch').classList.toggle('on',gameDayMode);
+  $('#gdSub').textContent=gameDayMode?'今日は回復モード — 軽く動かすだけ':'オフ → トレーニングモード';
+  gameDayMode ? renderRecovery() : renderSession();
+}
+
+function renderSession(){
+  const stage=getStage();
+  const goal=getGoal();
+  const exList=sessionExercises();
+  const checked=DB.checkedToday[today()]||[];
+  const done=exList.filter(e=>checked.includes(e.id)).length;
+  const pct=exList.length?Math.round(done/exList.length*100):0;
+  const injArrS=Array.isArray(DB.profile.injury)?DB.profile.injury:[DB.profile.injury||'none'];
+  const hasInjS=injArrS.some(x=>x&&x!=='none');
+  const chalRaw=DB.profile.challenge;
+  const chalArrH=Array.isArray(chalRaw)?chalRaw:(chalRaw?[chalRaw]:[]);
+  const challenge=chalArrH[0]||'';
+  const injLabelMap={knee:'膝',back:'腰',ankle:'足首',shoulder:'肩'};
+  const injPartsLabel=injArrS.filter(x=>x&&x!=='none').map(x=>injLabelMap[x]||x).join('・');
+
+  const injuryBanner = hasInjS ? `<div class="injury-banner">
+    <div class="ib-icon">⚠️</div>
+    <div><b>${injPartsLabel}への負担を軽減した代替種目</b>（★マーク）を使っています。痛みを感じたら即中止してください。</div>
+  </div>` : '';
+
+  const exHTML=exList.map(ex=>{
+    const isDone=checked.includes(ex.id);
+    const form=ex.form.map(f=>`<li>${f}</li>`).join('');
+    const isAlt=ex._alt;
+    return `<div class="ex-card ${ex.key?'key-ex':''} ${isAlt?'alt-ex':''}">
+      <div class="ex-top">
+        <div class="ex-icon">${ex.icon}</div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-dose">${ex.dose}</div>
+          ${ex.key&&!isAlt?'<div class="ex-badge badge-key">★ 今日のメイン</div>':''}
+          ${isAlt?'<div class="ex-badge badge-alt">★ 代替種目（ケガ配慮）</div>':''}
+        </div>
+        <button class="ex-expand" data-expand="${ex.id}">▼</button>
+        <button class="ex-check ${isDone?'done':''}" data-check="${ex.id}">✓</button>
+      </div>
+      <div class="ex-detail" id="detail-${ex.id}">
+        <div class="ex-detail-inner">
+          <div class="ex-form-title">FORM</div>
+          <ul class="ex-form-steps">${form}</ul>
+          <a class="ex-yt" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name+' やり方')}" target="_blank" rel="noopener">▶ YouTubeでフォームを見る</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const isCleared=DB.stagesDone.includes(DB.currentStage);
+  const milestoneHTML=`<div class="ex-card">
+    <div class="milestone-card">
+      <div class="mc-label">🎯 このステージのマイルストーン</div>
+      <div class="mc-text">${stage.milestone}</div>
+      <button class="mc-btn${isCleared?' achieved':''}" id="milestoneBtn">
+        ${isCleared?'✓ 達成済み — 次のステージへ進む':'達成した！ 次のステージへ進む'}
+      </button>
+    </div>
+  </div>`;
+
+  $('#sessionWrap').innerHTML=`
+    ${injuryBanner}
+    <div class="session-header">
+      <div class="sh-stage">STAGE ${stage.num} / ${goal.name}ルート</div>
+      <div class="sh-title">${stage.title}</div>
+      <div class="sh-focus">${stage.focus}</div>
+      ${challenge?`<div class="sh-msg">${CHALLENGE_MSG[challenge]||''}</div>`:''}
+      ${DB.profile.goal==='strength'&&CONTACT_MSG[DB.profile.fitness]?`<div class="sh-msg">${CONTACT_MSG[DB.profile.fitness]}</div>`:''}
+      <div class="sh-progress">
+        <div class="bar-label"><span>今日の進捗</span><span>${done}/${exList.length}種目</span></div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>
+    ${exHTML}${milestoneHTML}`;
+
+  $('#milestoneBtn').onclick=()=>{
+    if(isCleared)return;
+    if(!confirm(`「${stage.milestone}」\n\n本当に達成しましたか？`))return;
+    DB.stagesDone.push(DB.currentStage);
+    const next=DB.currentStage+1;
+    if(next<getGoal().stages.length){ DB.currentStage=next; toast(`🎉 Stage ${next+1} 解放！`); }
+    else toast('🏆 全ステージ制覇！');
+    saveDB(); renderToday(); renderPath(); renderStats();
+  };
+}
+
+function renderRecovery(){
+  const exHTML=RECOVERY_EX.map(ex=>`<div class="ex-card">
+    <div class="ex-top">
+      <div class="ex-icon">${ex.icon}</div>
+      <div class="ex-info"><div class="ex-name">${ex.name}</div><div class="ex-dose">${ex.dose}</div></div>
+      <button class="ex-expand" data-expand="${ex.id}">▼</button>
+    </div>
+    <div class="ex-detail" id="detail-${ex.id}">
+      <div class="ex-detail-inner">
+        <div class="ex-form-title">TIPS</div>
+        <ul class="ex-form-steps">${ex.form.map(f=>`<li>${f}</li>`).join('')}</ul>
+        <a class="ex-yt" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name+' やり方')}" target="_blank" rel="noopener">▶ YouTubeでフォームを見る</a>
+      </div>
+    </div>
+  </div>`).join('');
+  $('#sessionWrap').innerHTML=`<div class="recovery-header"><div class="rh-icon">🌊</div><div class="rh-title">今日は回復モード</div><div class="rh-sub">バスケで動かした体を癒やす。明日のために。</div></div>${exHTML}`;
+}
+
+const JUMP_TREE = {
+  trunk:[
+    {id:'base',      label:'自重の土台',    sub:'スクワット・グルートブリッジ', stageIdx:0},
+    {id:'loaded',    label:'加重スクワット', sub:'ゴブレット・バーベル基礎',    stageIdx:1},
+    {id:'explosive', label:'反発・爆発',     sub:'デプスジャンプ・ボックスJMP', stageIdx:2},
+  ],
+  branches:[
+    {key:'rebound_lose', label:'リバウンド', icon:'🏀', color:'#f97316',
+     nodes:[
+       {id:'reb_pos',  label:'ポジション強化', sub:'ボックスアウト体幹',
+        goal:'相手より先に位置を取り、押されても動かない下半身を作る',
+        drills:[
+          {name:'ボックスアウトドリル',       dose:'左右各10回 × 3セット', yt:'バスケ ボックスアウト 練習方法'},
+          {name:'パロフプレス（体幹アンカー）', dose:'左右各10回 × 3セット', yt:'パロフプレス やり方'},
+          {name:'シールドスクワットホールド',   dose:'30秒 × 3セット',      yt:'バスケ ポストアップ 体幹トレーニング'},
+        ]},
+       {id:'reb_burst',label:'跳び出し爆発', sub:'タイミング+踏み切り速度',
+        goal:'ボールの落下点へ最速で跳び出す反応と爆発力を作る',
+        drills:[
+          {name:'デプスジャンプ',           dose:'5回 × 4セット',       yt:'デプスジャンプ やり方 バスケ'},
+          {name:'連続リバウンドタップ',       dose:'10回 × 3セット',      yt:'バスケ リバウンドジャンプ 連続 トレーニング'},
+          {name:'リアクションジャンプ（合図で跳ぶ）', dose:'8回 × 3セット', yt:'リアクショントレーニング ジャンプ'},
+        ]},
+     ]},
+    {key:'block_low', label:'ブロック', icon:'✋', color:'#a78bfa',
+     nodes:[
+       {id:'blk_timing',label:'タイミング', sub:'シュートモーション読み',
+        goal:'相手のリリースに合わせて最高点を合わせる読みと反応を作る',
+        drills:[
+          {name:'シュートモーション反応ドリル', dose:'10本 × 3セット',   yt:'バスケ ブロック タイミング 練習'},
+          {name:'ミラードリル（1on1シャドー）', dose:'30秒 × 4セット',   yt:'バスケ ディフェンス ミラードリル'},
+          {name:'壁タッチ反応ジャンプ',         dose:'8回 × 3セット',    yt:'反応速度 トレーニング ジャンプ'},
+        ]},
+       {id:'blk_height',label:'高さ極大化', sub:'最高点でのボール操作',
+        goal:'助走1〜2歩からの最高到達点を最大化する',
+        drills:[
+          {name:'アプローチジャンプ（2ステップ）', dose:'8回 × 4セット', yt:'バスケ 助走ジャンプ 踏み切り 練習'},
+          {name:'リムタッチ／ボードタッチ',        dose:'10回 × 3セット', yt:'リムタッチ トレーニング'},
+          {name:'MBオーバーヘッドスロー',          dose:'8回 × 3セット',  yt:'メディシンボール オーバーヘッドスロー'},
+        ]},
+     ]},
+    {key:'finishing', label:'フィニッシュ', icon:'🏆', color:'#34d399',
+     nodes:[
+       {id:'fin_stable',label:'片足スタビリティ', sub:'踏み切り安定+体幹',
+        goal:'片足踏み切りでも軸がブレない土台を作る',
+        drills:[
+          {name:'シングルレッグホップ&スティック', dose:'左右各6回 × 3セット', yt:'片足ジャンプ 着地 トレーニング'},
+          {name:'ブルガリアンスプリットスクワット', dose:'左右各10回 × 3セット', yt:'ブルガリアンスプリットスクワット やり方'},
+          {name:'片足RDLバランス',                dose:'左右各8回 × 3セット',  yt:'シングルレッグRDL やり方'},
+        ]},
+       {id:'fin_air',label:'空中スキル', sub:'ダブルクラッチ・精度',
+        goal:'空中で体勢を制御しながらフィニッシュを決める',
+        drills:[
+          {name:'レイアップバリエーション',   dose:'各種10本ずつ',       yt:'レイアップ 種類 練習 バスケ'},
+          {name:'ダブルクラッチ練習',         dose:'左右各10本 × 2セット', yt:'ダブルクラッチ やり方 バスケ'},
+          {name:'ユーロステップ→フィニッシュ', dose:'左右各8本 × 2セット',  yt:'ユーロステップ やり方 バスケ'},
+        ]},
+     ]},
+  ]
+};
+
+function renderJumpTree(){
+  const done = DB.completedNodes || [];
+  const stagesDone = DB.stagesDone || [];
+  const gc = GOALS.jump.color || '#f97316';
+  const allTrunkDone = stagesDone.includes(2) || DB.currentStage >= 3;
+  const lineCol = allTrunkDone ? gc : 'var(--line)';
+
+  // Trunk nodes
+  const trunkHTML = JUMP_TREE.trunk.map((n,i)=>{
+    const isDone = stagesDone.includes(n.stageIdx);
+    const isCurrent = DB.currentStage === n.stageIdx && !isDone;
+    const cls = isDone?'done':isCurrent?'current':'locked';
+    const badge = isDone
+      ? `<div class="jt-tbadge clr">✓ CLEAR</div>`
+      : isCurrent ? `<div class="jt-tbadge">進行中</div>` : '';
+    const vline = i < JUMP_TREE.trunk.length-1
+      ? `<div class="jt-tvline" style="background:${isDone?gc:'var(--line)'}"></div>` : '';
+    return `<div class="jt-tnode ${cls}">
+      <div class="jt-tcirc">${isDone?'✓':i+1}</div>
+      <div class="jt-tnode-text">
+        <div class="jt-tnode-label">${n.label}</div>
+        <div class="jt-tnode-sub">${n.sub}</div>
+      </div>${badge}
+    </div>${vline}`;
+  }).join('');
+
+  // Active branches: filter by selected challenges
+  const selectedChal = Array.isArray(DB.profile.challenge)?DB.profile.challenge:
+                       (DB.profile.challenge?[DB.profile.challenge]:[]);
+  const activeBranches = JUMP_TREE.branches.filter(b=>selectedChal.includes(b.key));
+  const branchesToShow = activeBranches.length>0 ? activeBranches : JUMP_TREE.branches;
+
+  // Dynamic SVG connector based on branch count
+  const bCount = branchesToShow.length;
+  const xPos = bCount===1?[150]:bCount===2?[75,225]:[50,150,250];
+  const connSVG = `<svg viewBox="0 0 300 38" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:34px;display:block;overflow:visible">
+    <line x1="150" y1="0" x2="150" y2="16" stroke="${lineCol}" stroke-width="2"/>
+    ${bCount>1?`<line x1="${xPos[0]}" y1="16" x2="${xPos[bCount-1]}" y2="16" stroke="${lineCol}" stroke-width="2"/>`:''}
+    ${xPos.map(x=>`<line x1="${x}" y1="16" x2="${x}" y2="38" stroke="${lineCol}" stroke-width="2"/>`).join('')}
+  </svg>`;
+
+  // Branch columns
+  const branchesHTML = branchesToShow.map(b=>{
+    const nodesHTML = b.nodes.map((n,i)=>{
+      const isDone = done.includes(n.id);
+      const prevDone = i===0 || done.includes(b.nodes[i-1].id);
+      const cls = isDone?'done':(allTrunkDone&&prevDone)?'available':'locked';
+      const circBg = isDone?b.color:cls==='available'?'transparent':'var(--bg2)';
+      const circBorder = cls==='available'?`border:1.5px solid ${b.color}`:'';
+      const circColor = isDone?'#0b1220':cls==='available'?b.color:'var(--sub)';
+      const vline = i<b.nodes.length-1
+        ? `<div class="jt-bvline" style="background:${isDone?b.color:'var(--line)'}"></div>` : '';
+      const clickable = cls!=='locked' ? `data-node="${n.id}"` : '';
+      return `<div class="jt-bnode ${cls}" ${clickable} style="border-color:${cls!=='locked'?b.color:'var(--line)'};${clickable?'cursor:pointer':''}">
+        <div class="jt-bcirc" style="background:${circBg};${circBorder};color:${circColor}">${isDone?'✓':''}</div>
+        <div><div class="jt-bnode-label">${n.label}</div><div class="jt-bnode-sub">${n.sub}</div></div>
+      </div>${vline}`;
+    }).join('');
+    let dunkCalc = '';
+    if(b.key==='finishing' && DB.profile.height){
+      const h = DB.profile.height;
+      const reach = Math.round(h * 1.33);
+      const needed = 305 - reach;
+      const tl = needed<=20?'1〜3ヶ月':needed<=35?'3〜6ヶ月':needed<=50?'6ヶ月〜1年':needed<=70?'1〜2年':'2年以上';
+      const hard = needed > 80 ? '⚠️ 難易度が非常に高いため、まずリムタッチを目標にします' : '';
+      dunkCalc = `<div class="jt-dunk-calc" style="border-color:${b.color}20;background:${b.color}08">
+        <div style="font-size:9px;font-weight:700;color:${b.color};margin-bottom:3px">🏀 ダンク計算</div>
+        <div style="font-size:9px;color:var(--sub)">立ちリーチ約${reach}cm → あと<b style="color:${b.color}">${needed}cm</b></div>
+        <div style="font-size:9px;color:var(--sub)">目安期間: <b style="color:var(--fg)">${tl}</b></div>
+        ${hard?`<div style="font-size:8.5px;color:var(--yellow);margin-top:2px">${hard}</div>`:''}
+      </div>`;
+    }
+    return `<div class="jt-branch">
+      <div class="jt-bhead" style="color:${b.color}">${b.icon} ${b.label}</div>
+      ${dunkCalc}${nodesHTML}
+    </div>`;
+  }).join('');
+
+  return `<div class="skill-tree">
+    <div class="sm-label">SKILL TREE</div>
+    <div class="jt-tag">共通コア — 全課題で必須</div>
+    <div class="jt-trunk">${trunkHTML}</div>
+    ${connSVG}
+    <div class="jt-tag">課題別トレーニング${activeBranches.length===0?' — 課題を選ぶと絞り込まれます':''}</div>
+    <div class="jt-branches" style="grid-template-columns:${'1fr '.repeat(bCount).trim()}">${branchesHTML}</div>
+  </div>`;
+}
+
+function findBranchNode(nodeId){
+  for(const b of JUMP_TREE.branches){
+    const n=b.nodes.find(x=>x.id===nodeId);
+    if(n) return {branch:b, node:n};
+  }
+  return null;
+}
+
+function showBranchNode(nodeId){
+  const hit=findBranchNode(nodeId);
+  if(!hit) return;
+  const {branch:b, node:n}=hit;
+  const isDone=(DB.completedNodes||[]).includes(nodeId);
+  const drillsHTML=(n.drills||[]).map(d=>`
+    <div class="bn-drill">
+      <div class="bn-drill-info">
+        <div class="bn-drill-name">${d.name}</div>
+        <div class="bn-drill-dose">${d.dose}</div>
+      </div>
+      <a class="bn-yt" href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.yt)}" target="_blank" rel="noopener">▶ 動画</a>
+    </div>`).join('');
+  const overlay=document.createElement('div');
+  overlay.className='bn-overlay';
+  overlay.innerHTML=`
+    <div class="bn-panel">
+      <div class="bn-head" style="color:${b.color}">${b.icon} ${b.label}ブランチ</div>
+      <div class="bn-title">${n.label}</div>
+      <div class="bn-goal">🎯 ${n.goal||n.sub}</div>
+      <div class="bn-drills">${drillsHTML}</div>
+      <button class="bn-complete${isDone?' done':''}" id="bnComplete">
+        ${isDone?'✓ 習得済み — タップで未習得に戻す':'このノードを習得した！'}
+      </button>
+      <button class="bn-close" id="bnClose">閉じる</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.onclick=e=>{ if(e.target===overlay) overlay.remove(); };
+  overlay.querySelector('#bnClose').onclick=()=>overlay.remove();
+  overlay.querySelector('#bnComplete').onclick=()=>{
+    if(!DB.completedNodes) DB.completedNodes=[];
+    if(isDone){ DB.completedNodes=DB.completedNodes.filter(x=>x!==nodeId); }
+    else{ DB.completedNodes.push(nodeId); toast(`🎉 「${n.label}」習得！`); }
+    saveDB(); overlay.remove(); renderPath();
+  };
+}
+
+function renderPath(){
+  const goal=getGoal();
+  const currentGoalKey=DB.profile.goal;
+
+  $('#pathGoalLabel').textContent=`${goal.icon} ${goal.name}ルート`;
+  $('#pathTitle').textContent=goal.peak;
+  $('#pathSub').textContent=`Stage ${DB.currentStage+1} / ${goal.stages.length}`;
+
+  // ── Sphere Map SVG ──
+  const goalOrder=['jump','speed','agility','endurance','strength'];
+  const cx=175, cy=122, r=88;
+  const pts=goalOrder.map((_,i)=>{
+    const a=-Math.PI/2+(2*Math.PI/5)*i;
+    return {x:+(cx+r*Math.cos(a)).toFixed(1), y:+(cy+r*Math.sin(a)).toFixed(1)};
+  });
+  // Pentagon outline
+  const penPoly=pts.map(p=>`${p.x},${p.y}`).join(' ');
+  // Non-current nodes (gray + lock)
+  const nonCurrent=goalOrder.map((gKey,i)=>{
+    if(gKey===currentGoalKey) return '';
+    const p=pts[i];
+    return `<circle cx="${p.x}" cy="${p.y}" r="20" fill="#0d1525" stroke="#27344f" stroke-width="1.5"/>
+<text x="${p.x}" y="${p.y}" text-anchor="middle" dy="0.35em" font-size="16" opacity="0.2">${GOALS[gKey].icon}</text>
+<text x="${p.x}" y="${+p.y+16}" text-anchor="middle" font-size="8" fill="#3a4a6a" letter-spacing="0.5">LOCK</text>`;
+  }).join('');
+  // Current goal node
+  const ci=goalOrder.indexOf(currentGoalKey);
+  const cp=ci>=0?pts[ci]:{x:cx,y:cy};
+  const gc=GOALS[currentGoalKey]?.color||'var(--accent)';
+  const currentSVG=`<line x1="${cx}" y1="${cy}" x2="${cp.x}" y2="${cp.y}" stroke="${gc}" stroke-width="1" opacity="0.2"/>
+<circle cx="${cp.x}" cy="${cp.y}" r="38" fill="${gc}" fill-opacity="0.05" stroke="${gc}" stroke-width="0.8" stroke-dasharray="4 3"/>
+<circle cx="${cp.x}" cy="${cp.y}" r="26" fill="#0d1525" stroke="${gc}" stroke-width="2.5"/>
+<text x="${cp.x}" y="${cp.y}" text-anchor="middle" dy="0.35em" font-size="22">${goal.icon}</text>
+<circle cx="${cx}" cy="${cy}" r="8" fill="${gc}" fill-opacity="0.4" stroke="${gc}" stroke-width="1.5"/>`;
+
+  const sphereMapHTML=`<div class="sphere-map-wrap">
+  <div class="sm-label">SPHERE MAP</div>
+  <svg viewBox="0 0 350 244" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px;display:block;margin:0 auto">
+    <polygon points="${penPoly}" fill="none" stroke="#27344f" stroke-width="1" stroke-dasharray="3 5"/>
+    ${nonCurrent}${currentSVG}
+  </svg>
+  <div class="sm-sub">光っているルートが現在進行中。他のルートは未着手</div>
+</div>`;
+
+  // ── Stage progress spheres ──
+  let sphereNodes='';
+  goal.stages.forEach((s,idx)=>{
+    const isDone=DB.stagesDone.includes(idx);
+    const isCurrent=DB.currentStage===idx&&!isDone;
+    const cls=isDone?'done':isCurrent?'current':'locked';
+    if(idx>0) sphereNodes+=`<div class="ss-line ${DB.stagesDone.includes(idx-1)?'done':''}"></div>`;
+    sphereNodes+=`<div class="ss-node"><div class="ss-circle ${cls}">${isDone?'✓':`S${s.num}`}</div><div class="ss-title">${s.title}</div></div>`;
+  });
+  const stageProgressHTML=`<div class="stage-progress-wrap">
+  <div class="sm-label">CURRENT ROUTE — ${goal.name}</div>
+  <div class="stage-spheres">${sphereNodes}</div>
+</div>`;
+
+  // ── Detailed stage cards ──
+  const peakHTML=`<div class="peak-node"><div class="pk-icon">🗻</div><div class="pk-title">${goal.peak}</div><div class="pk-sub">全ステージ制覇で到達</div></div>`;
+
+  const stagesHTML=[...goal.stages].reverse().map(s=>{
+    const idx=s.num-1;
+    const isDone=DB.stagesDone.includes(idx);
+    const isCurrent=DB.currentStage===idx&&!isDone;
+    const isLocked=idx>DB.currentStage;
+    const cls=isDone?'done':isCurrent?'current':'locked';
+    const inner=isLocked
+      ?`<div class="pc-num">STAGE ${s.num}</div><div class="pc-title">${s.title}</div><div class="pc-lock">🔒 Stage ${s.num-1}クリアで解放</div>`
+      :isDone
+      ?`<div class="pc-num">STAGE ${s.num} — CLEAR</div><div class="pc-title">${s.title}</div><div class="pc-done-badge">✓ 完了</div>`
+      :`<div class="pc-num">STAGE ${s.num} — 現在地</div><div class="pc-title">${s.title}</div><div class="pc-focus">${s.focus}</div><div class="pc-milestone">🎯 ${s.milestone}</div>`;
+    return `<div class="path-node ${cls}"><div class="path-dot"></div><div class="path-card">${inner}</div></div>`;
+  }).join('');
+
+  const isJump=DB.profile.goal==='jump';
+  const futureHTML=`<div class="future-section"><div class="future-title">🔒 UNLOCKABLE CONTENT</div>
+    ${isJump?`<div class="future-card"><div class="fc-icon">🎥</div><div><div class="fc-name">ジャンプフォームガイド</div><div class="fc-lock">踏み切り・着地・腕の使い方の完全解説</div></div><div class="fc-badge">Stage 1</div></div>`:''}
+    <div class="future-card"><div class="fc-icon">🥗</div><div><div class="fc-name">栄養ガイド</div><div class="fc-lock">筋トレ効果を最大化する食事戦略</div></div><div class="fc-badge">Stage 2</div></div>
+    <div class="future-card"><div class="fc-icon">😴</div><div><div class="fc-name">リカバリー&睡眠プロトコル</div><div class="fc-lock">超回復を最大化する方法</div></div><div class="fc-badge">Stage 3</div></div>
+    <div class="future-card"><div class="fc-icon">🧠</div><div><div class="fc-name">メンタル・集中力トレーニング</div><div class="fc-lock">本番で力を出しきる</div></div><div class="fc-badge">Stage 4</div></div>
+  </div>`;
+
+  const isJumpGoal = DB.profile.goal === 'jump';
+  const routeContent = isJumpGoal
+    ? renderJumpTree()
+    : `${stageProgressHTML}<div class="path-line"></div>${peakHTML}${stagesHTML}`;
+  $('#pathWrap').innerHTML=`${sphereMapHTML}${routeContent}${futureHTML}`;
+  $('#pathWrap').querySelectorAll('[data-node]').forEach(el=>{
+    el.onclick=()=>showBranchNode(el.dataset.node);
+  });
+}
+
+function renderProfile(){
+  const p=DB.profile;
+  const goal=getGoal();
+  const freqMap={1:'週1日',2:'週2〜3日',3:'週4〜5日',4:'週6〜7日'};
+  const eqMap={body:'自重のみ',light:'自宅器具',gym:'一般ジム',perf:'アスリートジム'};
+  const lvMap={rookie:'ほぼ未経験',beginner:'自重経験あり',intermediate:'ジム経験あり',advanced:'競技者レベル',elite:'エリートレベル',rebound:'リバウンド',loose:'ルーズボール',defense:'ディフェンス安定',post:'ポスト強化',drive:'ドライブ突破'};
+  const injMap={none:'なし',knee:'膝',back:'腰',ankle:'足首',shoulder:'肩'};
+  const injArrP=Array.isArray(p.injury)?p.injury:[p.injury||'none'];
+  const injLabel=injArrP.filter(x=>x&&x!=='none').map(x=>injMap[x]||x).join('・')||'なし';
+  const chalMap={
+    lost:'何から始めるかわからない', plateau:'伸び悩み', balance:'バスケとの両立', injury:'ケガが心配',
+    finishing:'フィニッシュが決められない', rebound_lose:'リバウンドで跳び負ける', block_low:'ブロックが決まらない', takeoff_weak:'踏み切りの爆発力',
+    drive_beat:'ドライブで抜けない', fastbreak:'速攻で走り負ける', shaken:'マークマンに振り切られる',
+    of_cut:'OFで左右に抜けない', df_follow:'DFでついていけない', change_dir:'方向転換が遅い',
+    no_exp:'フィジカルが初めて', no_change:'体が変わらない', fatigue:'疲労バランス', pain:'関節・ケガが心配',
+    legs_heavy:'後半に足が重い', recovery:'インターバル回復が遅い', defense:'ハードDFが続かない',
+  };
+  const abLabel=goal.abilityLabel[p.current_ability]||'-';
+
+  $('#profileDetail').innerHTML=`
+    <div class="ps-header">PROFILE</div>
+    <div class="ps-row"><span class="ps-key">メインゴール</span><span class="ps-val">${goal.icon} ${goal.name}</span></div>
+    <div class="ps-row"><span class="ps-key">現在のレベル</span><span class="ps-val">${abLabel}</span></div>
+    <div class="ps-row"><span class="ps-key">課題タイプ</span><span class="ps-val">${(Array.isArray(p.challenge)?p.challenge:[p.challenge]).map(c=>chalMap[c]).filter(Boolean).join('・')||'-'}</span></div>
+    <div class="ps-row"><span class="ps-key">バスケ頻度</span><span class="ps-val">${freqMap[p.bball_freq]||'-'}</span></div>
+    <div class="ps-row"><span class="ps-key">${p.goal==='strength'?'コンタクト診断':'体力レベル'}</span><span class="ps-val">${lvMap[p.fitness]||'-'}</span></div>
+    <div class="ps-row"><span class="ps-key">環境</span><span class="ps-val">${eqMap[p.equipment]||'-'}</span></div>
+    <div class="ps-row"><span class="ps-key">ケガ配慮</span><span class="ps-val">${injLabel}</span></div>
+    <div class="ps-row"><span class="ps-key">時間</span><span class="ps-val">${p.time}分</span></div>
+    <div class="ps-row"><span class="ps-key">現ステージ</span><span class="ps-val">Stage ${DB.currentStage+1} / ${goal.stages.length}</span></div>`;
+}
+
+function renderStats(){
+  $('#stStreak').textContent=calcStreak()+'日';
+  $('#stStage').textContent=`S${DB.currentStage+1}`;
+  $('#stWeek').textContent=calcWeek()+'回';
+}
+function calcStreak(){
+  let s=0;
+  for(let i=0;i<60;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    if((DB.checkedToday[k]&&DB.checkedToday[k].length)) s++;
+    else if(i>0) break;
+  }
+  return s;
+}
+function calcWeek(){
+  let c=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    if(DB.checkedToday[k]&&DB.checkedToday[k].length) c++;
+  }
+  return c;
+}
+
+/* ================================================================
+   EVENTS
+================================================================ */
+document.addEventListener('click',e=>{
+  const chk=e.target.closest('[data-check]');
+  if(chk){
+    const id=chk.dataset.check, d=today();
+    DB.checkedToday[d]=DB.checkedToday[d]||[];
+    const i=DB.checkedToday[d].indexOf(id);
+    i>=0?DB.checkedToday[d].splice(i,1):(DB.checkedToday[d].push(id),toast('ナイス！'));
+    saveDB(); renderToday(); renderStats(); return;
+  }
+  const exp=e.target.closest('[data-expand]');
+  if(exp){
+    const det=$(`#detail-${exp.dataset.expand}`);
+    if(det){ det.classList.toggle('open'); exp.classList.toggle('open'); } return;
+  }
+  const tab=e.target.closest('[data-v]');
+  if(tab&&tab.closest('#tabbar')){ switchView(tab.dataset.v); return; }
+});
+
+$('#gdToggle').addEventListener('click',()=>{
+  gameDayMode=!gameDayMode;
+  DB.gameDay=gameDayMode; DB.lastGameDay=gameDayMode?today():'';
+  saveDB(); renderToday();
+});
+$('#resetBtn').addEventListener('click',()=>{
+  if(confirm('全データをリセットします。よろしいですか？')){ localStorage.removeItem(KEY); location.reload(); }
+});
+
+/* ── PWA install ── */
+(function(){
+  // Inject manifest at runtime (absolute URLs so it works wherever hosted)
+  try{
+    const iconSvg="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='110' fill='%230b1220'/%3E%3Ccircle cx='256' cy='256' r='160' fill='%23ff7a1a'/%3E%3Cpath d='M96 256h320M256 96v320M155 140a220 220 0 0 1 0 232M357 140a220 220 0 0 0 0 232' stroke='%230b1220' stroke-width='14' fill='none'/%3E%3C/svg%3E";
+    const manifest={
+      name:'HOOP STRENGTH', short_name:'HOOP STR',
+      start_url:location.href.split('#')[0], scope:location.href.replace(/[^/]*$/,''),
+      display:'standalone', background_color:'#0b1220', theme_color:'#0b1220',
+      icons:[{src:iconSvg,sizes:'any',type:'image/svg+xml',purpose:'any'}]
+    };
+    const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+    const link=document.createElement('link');
+    link.rel='manifest'; link.href=URL.createObjectURL(blob);
+    document.head.appendChild(link);
+  }catch(e){}
+
+  let deferredPrompt=null;
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault(); deferredPrompt=e;
+    const btn=$('#installBtn'); if(btn) btn.style.display='block';
+  });
+  const btn=$('#installBtn');
+  if(btn) btn.onclick=async()=>{
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const {outcome}=await deferredPrompt.userChoice;
+    if(outcome==='accepted'){ toast('📲 インストールしました！'); btn.style.display='none'; }
+    deferredPrompt=null;
+  };
+  window.addEventListener('appinstalled',()=>{ const b=$('#installBtn'); if(b) b.style.display='none'; });
+})();
+
+function switchView(v){
+  ['today','path','profile'].forEach(x=>$(`#view-${x}`).classList.toggle('on',x===v));
+  $('#tabbar').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo(0,0);
+}
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1500); }
+function $(s){ return document.querySelector(s); }
+
+/* INIT */
+if(DB){ $('#obWrap').classList.add('gone'); startApp(); }
+else { obStep=0; obAnswers={}; renderOB(); }
+</script>
+</body>
+</html>
